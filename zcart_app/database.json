@@ -1,0 +1,80 @@
+{
+  "products": [
+    {
+      "id": 1,
+      "name": "Edward Rose (चेती)",
+      "category": "Ht",
+      "price": 199,
+      "origPrice": 299,
+      "desc": "तीव्र सुगंधित, देसी चेती वैरायटी",
+      "image": "https://images.unsplash.com/photo-1559563362-c6731ba45855",
+      "badge": "HYBRID TEA"
+    },
+    {
+      "id": 2,
+      "name": "Jubilee Celebration",
+      "category": "David Austin",
+      "price": 399,
+      "origPrice": 499,
+      "desc": "रिच फ्रूटी फ्रेग्रेंस, डोम शेप्ड",
+      "image": "https://images.unsplash.com/photo-1518709268805-4e9042af9f23",
+      "badge": "DAVID AUSTIN"
+    },
+    {
+      "id": 3,
+      "name": "Avalanche Rose",
+      "category": "Dutch Rose",
+      "price": 279,
+      "origPrice": 350,
+      "desc": "क्लासिक कट-फ्लावर डच वैरायटी",
+      "image": "https://images.unsplash.com/photo-1562690868-60bbe7293e94",
+      "badge": "DUTCH"
+    },
+    {
+      "id": 4,
+      "name": "Iceberg Rose",
+      "category": "Floribunda",
+      "price": 249,
+      "origPrice": 320,
+      "desc": "गुच्छों में खिलने वाले सफेद फूल",
+      "image": "https://images.unsplash.com/photo-1533619239233-6280475a633a",
+      "badge": "FLORIBUNDA"
+    },
+    {
+      "id": 1789198111967,
+      "name": "Gulab",
+      "category": "Dutch",
+      "price": 1,
+      "origPrice": 1,
+      "desc": "Gulab",
+      "image": "https://images.unsplash.com/photo-1559563362-c6731ba45855",
+      "badge": "ROSE"
+    }
+  ],
+  "orders": [
+    {
+      "id": "ORD516242",
+      "items": "Iceberg Rose (x1), Avalanche Rose (x1), Jubilee Celebration (x1), Edward Rose (चेती) (x1)",
+      "amount": 1126,
+      "customer": {
+        "name": "ग्राहक",
+        "phone": "9876543210",
+        "address": "Sheikhpura"
+      },
+      "date": "12/9/2026, 12:44:26 pm",
+      "status": "Delivered (डिलीवर हो गया)"
+    },
+    {
+      "id": "ORD653546",
+      "items": "Jubilee Celebration (x1), Edward Rose (चेती) (x1)",
+      "amount": 598,
+      "customer": {
+        "name": "ग्राहक",
+        "phone": "9876543210",
+        "address": "Sheikhpura"
+      },
+      "date": "12/9/2026, 12:44:13 pm",
+      "status": "Delivered (डिलीवर हो गया)"
+    }
+  ]
+}

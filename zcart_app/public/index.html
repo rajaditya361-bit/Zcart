@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZCart - Premium Rose Nursery</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2874f0;
+            --primary-dark: #1255c5;
+            --accent: #ff9f00;
+            --success: #388e3c;
+            --bg-main: #f4f6fb;
+            --surface: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg-main); color: var(--text-main); padding-bottom: 80px; }
+        
+        /* Header / Navbar */
+        header { 
+            background: linear-gradient(135deg, #1e3c72 0%, var(--primary) 100%); 
+            color: white; 
+            padding: 10px 16px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            position: sticky; 
+            top: 0; 
+            z-index: 100; 
+            box-shadow: 0 4px 15px rgba(40, 116, 240, 0.2);
+        }
+        header h1 { font-size: 18px; font-weight: 800; display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
+        header h1 i { color: #4ade80; }
+        .header-right { display: flex; align-items: center; gap: 12px; }
+        
+        /* Search Box */
+        .search-box { display: flex; align-items: center; background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.25); border-radius: 20px; padding: 5px 12px; flex: 1; max-width: 200px; }
+        .search-box input { border: none; outline: none; font-size: 13px; width: 100%; color: white; background: transparent; }
+        .search-box input::placeholder { color: rgba(255,255,255,0.7); }
+        .search-box:focus-within input { color: var(--text-main); }
+        .search-box:focus-within { background: white; }
+        .search-box:focus-within i { color: var(--text-muted); }
+        .search-box i { color: rgba(255, 255, 255, 0.8); font-size: 12px; }
+
+        #secretAdminBtn { display: none; color: white; text-decoration: none; font-size: 11px; background: #ff5722; padding: 4px 8px; border-radius: 10px; font-weight: bold; align-items: center; gap: 4px; }
+
+        /* Views */
+        .view-section { display: none; }
+        .view-section.active { display: block; }
+
+        /* Categories Bar */
+        .categories-container { background: var(--surface); padding: 10px 14px; display: flex; gap: 8px; overflow-x: auto; white-space: nowrap; position: sticky; top: 53px; z-index: 90; box-shadow: var(--shadow-sm); scrollbar-width: none; }
+        .categories-container::-webkit-scrollbar { display: none; }
+        .cat-chip { background: #f3f4f6; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--text-muted); border: 1px solid var(--border); }
+        .cat-chip.active { background: var(--primary); color: white; border-color: transparent; }
+
+        /* Banner Slider */
+        .banner-container { 
+            width: calc(100% - 20px); 
+            max-width: 800px; 
+            height: 150px; 
+            position: relative; 
+            overflow: hidden; 
+            background: #e5e7eb; 
+            margin: 10px auto; 
+            border-radius: var(--radius-md); 
+            box-shadow: var(--shadow-sm);
+            touch-action: pan-y;
+        }
+        .banner-track { 
+            display: flex; 
+            height: 100%; 
+            will-change: transform;
+            transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1); 
+        }
+        .banner-slide { min-width: 100%; height: 100%; position: relative; user-select: none; }
+        .banner-slide img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+        .banner-dots { position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%); display: flex; gap: 5px; z-index: 10; background: rgba(0,0,0,0.3); padding: 3px 6px; border-radius: 8px; }
+        .banner-dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,0.6); cursor: pointer; transition: width 0.3s; }
+        .banner-dot.active { background: white; width: 14px; border-radius: 3px; }
+
+        /* Container & Grid */
+        .container { padding: 10px; max-width: 1200px; margin: 0 auto; }
+        .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        @media(min-width: 768px) { .product-grid { grid-template-columns: repeat(4, 1fr); gap: 14px; } }
+        
+        .product-card { background: var(--surface); border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; border: 1px solid var(--border); position: relative; }
+        .product-img-box { width: 100%; height: 150px; background: #f8fafc; position: relative; overflow: hidden; }
+        .product-img-box img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .badge { position: absolute; top: 6px; left: 6px; background: rgba(0, 0, 0, 0.7); color: white; font-size: 8px; padding: 2px 6px; border-radius: 4px; font-weight: 700; text-transform: uppercase; }
+        .wishlist-btn { position: absolute; top: 6px; right: 6px; background: rgba(255,255,255,0.85); border: none; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #9ca3af; font-size: 12px; z-index: 5; transition: all 0.2s; }
+        .wishlist-btn.active { color: #ef4444; background: white; }
+
+        .product-details { padding: 8px; }
+        .product-name { font-size: 12px; font-weight: 700; color: var(--text-main); margin-bottom: 2px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+        .product-desc { font-size: 10px; color: var(--text-muted); margin-bottom: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 26px; }
+        
+        .rating-box { display: flex; align-items: center; gap: 4px; font-size: 10px; color: var(--text-muted); margin-bottom: 6px; }
+        .stars { color: white; background: var(--success); padding: 1px 5px; border-radius: 4px; font-weight: 700; display: inline-flex; align-items: center; gap: 2px; font-size: 9px; }
+
+        .price-box { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+        .current-price { font-size: 14px; font-weight: 800; color: var(--success); }
+        .orig-price { font-size: 11px; color: #9ca3af; text-decoration: line-through; }
+        
+        .btn-add { background: var(--accent); color: white; border: none; width: 100%; padding: 8px; border-radius: var(--radius-sm); font-weight: 700; font-size: 11px; cursor: pointer; }
+
+        /* Detailed Product Page */
+        .detail-card { background: var(--surface); border-radius: var(--radius-md); padding: 14px; margin-bottom: 12px; border: 1px solid var(--border); }
+        .main-detail-img { width: 100%; height: 240px; object-fit: cover; border-radius: var(--radius-sm); margin-bottom: 10px; background: #f8fafc; }
+        .thumbnail-row { display: flex; gap: 8px; margin-bottom: 12px; overflow-x: auto; }
+        .thumb-img { width: 55px; height: 55px; object-fit: cover; border-radius: var(--radius-sm); border: 2px solid var(--border); cursor: pointer; }
+        .thumb-img.active-thumb { border-color: var(--primary); }
+        .back-btn { background: none; border: none; color: var(--primary); font-weight: 700; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
+
+        /* Account & Dashboard Tabs */
+        .account-card { background: var(--surface); border-radius: var(--radius-md); padding: 16px; margin-bottom: 10px; border: 1px solid var(--border); }
+        .account-card h3 { font-size: 15px; margin-bottom: 12px; color: var(--primary); font-weight: 800; display: flex; align-items: center; gap: 8px; }
+        
+        .profile-menu-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+        .profile-menu-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: #f9fafb; border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; font-size: 12px; font-weight: 600; color: var(--text-main); }
+        .profile-menu-item i { color: var(--primary); }
+        .profile-menu-item:hover { background: #f3f4f6; }
+
+        .sub-view { display: none; }
+        .sub-view.active { display: block; }
+
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 11px; font-weight: 700; margin-bottom: 4px; color: #4b5563; }
+        .form-group input, .form-group select { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 12px; outline: none; background: #f9fafb; color: var(--text-main); }
+        .form-group input:focus, .form-group select:focus { border-color: var(--primary); background: white; }
+        
+        .btn-primary { background: var(--primary); color: white; border: none; width: 100%; padding: 10px; border-radius: var(--radius-sm); font-weight: 700; font-size: 12px; cursor: pointer; }
+        .btn-secondary { background: var(--success); color: white; border: none; padding: 6px 10px; border-radius: 6px; font-weight: 700; font-size: 10px; cursor: pointer; }
+        .btn-logout { background: #ef4444; color: white; border: none; width: 100%; padding: 9px; border-radius: var(--radius-sm); font-weight: 700; font-size: 11px; cursor: pointer; margin-top: 10px; }
+
+        .secure-badge { background: #ecfdf5; color: #065f46; font-size: 10px; padding: 6px 10px; border-radius: var(--radius-sm); display: flex; align-items: center; gap: 6px; margin-bottom: 10px; font-weight: 600; border: 1px solid #a7f3d0; }
+
+        /* Toast */
+        #toast {
+            visibility: hidden;
+            min-width: 220px;
+            background-color: #1e293b;
+            color: #fff;
+            text-align: center;
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            position: fixed;
+            z-index: 1000;
+            left: 50%;
+            bottom: 20px;
+            transform: translateX(-50%) translateY(20px);
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            opacity: 0;
+            transition: all 0.25s ease;
+        }
+        #toast.show { visibility: visible; opacity: 1; transform: translateX(-50%) translateY(0); }
+        #toast button { background: var(--primary); color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 10px; cursor: pointer; font-weight: 700; }
+
+        /* Cart Drawer */
+        .cart-drawer { position: fixed; top: 0; right: -100%; width: 100%; max-width: 340px; height: 100%; background: var(--surface); z-index: 200; box-shadow: -5px 0 20px rgba(0,0,0,0.1); transition: right 0.3s ease; display: flex; flex-direction: column; }
+        .cart-drawer.open { right: 0; }
+        .cart-header { background: var(--primary); color: white; padding: 14px; display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 15px; }
+        .cart-body { padding: 12px; flex: 1; overflow-y: auto; }
+        .cart-footer { padding: 14px; background: #f9fafb; border-top: 1px solid var(--border); }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid var(--border); padding-bottom: 8px; font-size: 11px; }
+        .checkout-btn { background: #fb641b; color: white; border: none; width: 100%; padding: 11px; border-radius: var(--radius-sm); font-weight: 800; font-size: 12px; cursor: pointer; }
+
+        /* Payment Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 300; display: none; justify-content: center; align-items: center; padding: 14px; }
+        .modal-card { background: var(--surface); border-radius: var(--radius-md); width: 100%; max-width: 320px; padding: 18px; text-align: center; border: 1px solid var(--border); }
+        .modal-card h3 { font-size: 16px; color: var(--primary); margin-bottom: 10px; font-weight: 800; }
+        .upi-qr { width: 140px; height: 140px; margin: 8px auto; border: 1px solid var(--border); padding: 4px; border-radius: var(--radius-sm); background: white; }
+        .btn-pay-app { background: var(--success); color: white; border: none; width: 100%; padding: 10px; border-radius: var(--radius-sm); font-weight: 800; font-size: 12px; cursor: pointer; display: block; text-decoration: none; margin-bottom: 8px; text-align: center; }
+
+        /* Bottom Nav */
+        .bottom-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--surface); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 8px 0; z-index: 90; font-size: 10px; color: var(--text-muted); }
+        .bottom-item { text-align: center; cursor: pointer; text-decoration: none; color: inherit; flex: 1; }
+        .bottom-item.active { color: var(--primary); font-weight: 700; }
+        .bottom-item.active i { color: var(--primary); }
+        .bottom-item i { font-size: 16px; display: block; margin-bottom: 2px; color: #9ca3af; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1 onclick="handleLogoSecret()"><i class="fa-solid fa-seedling"></i> ZCart</h1>
+        
+        <div class="search-box" id="searchContainer">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="searchInput" placeholder="Search plants..." oninput="handleSearch()">
+        </div>
+
+        <div class="header-right">
+            <a href="/admin.html" id="secretAdminBtn"><i class="fa-solid fa-user-gear"></i> Admin</a>
+            <div style="position:relative; cursor:pointer; font-size:20px;" onclick="toggleCart()">
+                <i class="fa-solid fa-cart-shopping"></i>
+                <span style="position:absolute; top:-6px; right:-6px; background:#ff5722; color:white; font-size:9px; padding:1px 5px; border-radius:50%; font-weight:800;" id="cartBadge">0</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- HOME VIEW -->
+    <div id="homeView" class="view-section active">
+        <div class="categories-container" id="categoriesBar">
+            <div class="cat-chip active" onclick="filterCategory('All', this)">All Plants</div>
+        </div>
+
+        <!-- Banner Slider -->
+        <div class="banner-container" id="bannerContainer">
+            <div class="banner-track" id="bannerTrack">
+                <div class="banner-slide">
+                    <img src="https://images.unsplash.com/photo-1558788353-f76d92427f16?auto=format&fit=crop&w=600&q=70" alt="Banner 1">
+                </div>
+                <div class="banner-slide">
+                    <img src="https://images.unsplash.com/photo-1545239351-ef35f43d514b?auto=format&fit=crop&w=600&q=70" alt="Banner 2">
+                </div>
+                <div class="banner-slide">
+                    <img src="https://images.unsplash.com/photo-1512428813834-c702c7702b78?auto=format&fit=crop&w=600&q=70" alt="Banner 3">
+                </div>
+            </div>
+            <div class="banner-dots" id="bannerDots">
+                <div class="banner-dot active" onclick="currentSlide(0)"></div>
+                <div class="banner-dot" onclick="currentSlide(1)"></div>
+                <div class="banner-dot" onclick="currentSlide(2)"></div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="product-grid" id="productGrid"></div>
+        </div>
+    </div>
+
+    <!-- PRODUCT DETAILS VIEW -->
+    <div id="detailView" class="view-section">
+        <div class="container" style="max-width: 600px; margin: auto;">
+            <button class="back-btn" onclick="switchTab('home')"><i class="fa-solid fa-arrow-left"></i> Back to Products</button>
+            <div id="productDetailContainer"></div>
+        </div>
+    </div>
+
+    <!-- ACCOUNT / DASHBOARD VIEW -->
+    <div id="accountView" class="view-section">
+        <div class="container" style="max-width: 420px; margin: auto; padding-top: 10px;">
+            <div class="secure-badge">
+                <i class="fa-solid fa-shield-halved"></i> 100% Secure Customer Data & Encryption
+            </div>
+            
+            <!-- Auth Container (If Not Logged In) -->
+            <div id="authContainer">
+                <div class="account-card">
+                    <h3><i class="fa-solid fa-user-lock"></i> Secure Customer Login</h3>
+                    <div class="form-group">
+                        <label>Your Name</label>
+                        <input type="text" id="custName" placeholder="Enter full name">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="tel" id="custPhone" placeholder="10-digit mobile number" maxlength="10">
+                    </div>
+                    <div class="form-group">
+                        <label>Delivery Address</label>
+                        <input type="text" id="custAddress" placeholder="Village, District, Pin Code">
+                    </div>
+                    <button class="btn-primary" onclick="loginCustomer()">Secure Login</button>
+                </div>
+            </div>
+
+            <!-- Dashboard Container (If Logged In) -->
+            <div id="profileContainer" style="display: none;">
+                
+                <!-- Main Hub View -->
+                <div id="subViewDashboard" class="sub-view active">
+                    <div class="account-card">
+                        <h3><i class="fa-solid fa-circle-user"></i> Hello, <span id="profileNameDisplay"></span></h3>
+                        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">Manage your orders, wishlist, address, and profile settings seamlessly.</p>
+                        
+                        <div class="profile-menu-list">
+                            <div class="profile-menu-item" onclick="openSubView('orders')">
+                                <span><i class="fa-solid fa-box-open" style="width:20px;"></i> My Orders</span>
+                                <i class="fa-solid fa-chevron-right" style="font-size:10px; color:#9ca3af;"></i>
+                            </div>
+                            <div class="profile-menu-item" onclick="openSubView('wishlist')">
+                                <span><i class="fa-solid fa-heart" style="width:20px; color:#ef4444;"></i> Wishlist</span>
+                                <i class="fa-solid fa-chevron-right" style="font-size:10px; color:#9ca3af;"></i>
+                            </div>
+                            <div class="profile-menu-item" onclick="openSubView('profile')">
+                                <span><i class="fa-solid fa-user-pen" style="width:20px;"></i> Profile Settings & Phone</span>
+                                <i class="fa-solid fa-chevron-right" style="font-size:10px; color:#9ca3af;"></i>
+                            </div>
+                            <div class="profile-menu-item" onclick="openSubView('address')">
+                                <span><i class="fa-solid fa-location-dot" style="width:20px;"></i> Edit Delivery Address</span>
+                                <i class="fa-solid fa-chevron-right" style="font-size:10px; color:#9ca3af;"></i>
+                            </div>
+                            <div class="profile-menu-item" onclick="openSubView('language')">
+                                <span><i class="fa-solid fa-language" style="width:20px;"></i> Language Settings</span>
+                                <i class="fa-solid fa-chevron-right" style="font-size:10px; color:#9ca3af;"></i>
+                            </div>
+                        </div>
+
+                        <button class="btn-logout" onclick="logoutCustomer()">Secure Logout</button>
+                    </div>
+                </div>
+
+                <!-- 1. My Orders View -->
+                <div id="subViewOrders" class="sub-view">
+                    <div class="account-card">
+                        <button class="back-btn" onclick="openSubView('dashboard')"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</button>
+                        <h3><i class="fa-solid fa-box-open"></i> My Orders</h3>
+                        <div id="orderHistoryList" style="font-size: 11px; color: var(--text-muted); max-height: 250px; overflow-y: auto;">Loading orders...</div>
+                    </div>
+                </div>
+
+                <!-- 2. Wishlist View -->
+                <div id="subViewWishlist" class="sub-view">
+                    <div class="account-card">
+                        <button class="back-btn" onclick="openSubView('dashboard')"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</button>
+                        <h3><i class="fa-solid fa-heart" style="color:#ef4444;"></i> My Wishlist</h3>
+                        <div id="wishlistContainer" class="product-grid" style="grid-template-columns: repeat(2, 1fr); gap: 8px;"></div>
+                    </div>
+                </div>
+
+                <!-- 3. Profile Settings (Name & Mobile Number) -->
+                <div id="subViewProfile" class="sub-view">
+                    <div class="account-card">
+                        <button class="back-btn" onclick="openSubView('dashboard')"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</button>
+                        <h3><i class="fa-solid fa-user-pen"></i> Profile & Mobile Number</h3>
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" id="editProfileName">
+                        </div>
+                        <div class="form-group">
+                            <label>Mobile Number (10 digits)</label>
+                            <input type="tel" id="editProfilePhone" maxlength="10">
+                        </div>
+                        <button class="btn-primary" onclick="saveProfileChanges()">Save Changes</button>
+                    </div>
+                </div>
+
+                <!-- 4. Edit Address View -->
+                <div id="subViewAddress" class="sub-view">
+                    <div class="account-card">
+                        <button class="back-btn" onclick="openSubView('dashboard')"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</button>
+                        <h3><i class="fa-solid fa-location-dot"></i> Edit Delivery Address</h3>
+                        <div class="form-group">
+                            <label>Shipping / Delivery Address</label>
+                            <input type="text" id="editAddressInput">
+                        </div>
+                        <button class="btn-primary" onclick="saveNewAddress()">Update Address</button>
+                    </div>
+                </div>
+
+                <!-- 5. Language Settings View -->
+                <div id="subViewLanguage" class="sub-view">
+                    <div class="account-card">
+                        <button class="back-btn" onclick="openSubView('dashboard')"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</button>
+                        <h3><i class="fa-solid fa-language"></i> Language Settings</h3>
+                        <div class="form-group">
+                            <label>Select Language (Default: English)</label>
+                            <select id="languageSelect" onchange="changeLanguageSetting(this.value)">
+                                <option value="en">English (Default)</option>
+                                <option value="hi" disabled>Hindi (Coming Soon)</option>
+                            </select>
+                        </div>
+                        <p style="font-size: 11px; color: var(--text-muted); line-height: 1.4;">ZCart is currently optimized for English as the primary default language experience.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div class="modal-overlay" id="paymentModal">
+        <div class="modal-card">
+            <h3><i class="fa-solid fa-shield-check" style="color: var(--success);"></i> Verified Secure Payment</h3>
+            <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">Total Amount: <strong style="color: var(--success); font-size: 14px;">₹<span id="payModalAmount">0</span></strong></p>
+            
+            <img id="dynamicQrImg" src="" alt="UPI QR" class="upi-qr">
+            <p style="font-size: 10px; font-weight: 700; color: var(--primary); margin-bottom: 10px;">UPI ID: 6200002592@axl</p>
+
+            <a href="#" id="upiAppBtn" class="btn-pay-app"><i class="fa-solid fa-mobile-screen-button"></i> Pay Securely via App</a>
+
+            <button class="btn-primary" onclick="confirmDirectOrder()" style="background: var(--success); margin-top: 4px;">Payment Completed - Place Order</button>
+            <button style="background:none; border:none; color:#ef4444; font-size:10px; cursor:pointer; font-weight:700; margin-top:10px;" onclick="closePaymentModal()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast">
+        <span id="toastMsg">Plant added!</span>
+        <button onclick="toggleCart()">View Cart</button>
+    </div>
+
+    <!-- Cart Drawer -->
+    <div class="cart-drawer" id="cartDrawer">
+        <div class="cart-header">
+            <span>Your Cart</span>
+            <i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="toggleCart()"></i>
+        </div>
+        <div class="cart-body" id="cartItemsContainer">Your cart is empty.</div>
+        <div class="cart-footer">
+            <div style="font-size: 14px; font-weight: 800; margin-bottom: 10px; display: flex; justify-content: space-between;">
+                <span>Total Amount:</span>
+                <span style="color: var(--success);">₹<span id="cartTotal">0</span></span>
+            </div>
+            <button class="checkout-btn" onclick="proceedToCheckout()">Secure Checkout</button>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <div class="bottom-bar">
+        <div class="bottom-item active" id="navHome" onclick="switchTab('home')"><i class="fa-solid fa-house"></i> Home</div>
+        <div class="bottom-item" id="navAccount" onclick="switchTab('account')"><i class="fa-solid fa-user"></i> Account</div>
+    </div>
+
+    <script>
+        let cart = [];
+        let wishlist = JSON.parse(localStorage.getItem('zcart_wishlist')) || [];
+        let allProducts = [];
+        let currentCategory = 'All';
+        let secretClicks = 0;
+        let currentUser = JSON.parse(localStorage.getItem('zcart_secure_user')) || null;
+        let currentLang = localStorage.getItem('zcart_lang') || 'en';
+
+        let slideIndex = 0;
+        let slideInterval;
+        let startX = 0;
+        let isSwiping = false;
+
+        function initBannerSlider() {
+            let track = document.getElementById('bannerTrack');
+            let container = document.getElementById('bannerContainer');
+            if(!track || !container) return;
+
+            function showSlide(index) {
+                let totalSlides = track.children.length;
+                if(index >= totalSlides) slideIndex = 0;
+                else if(index < 0) slideIndex = totalSlides - 1;
+                else slideIndex = index;
+
+                track.style.transform = `translateX(-${slideIndex * 100}%)`;
+                document.querySelectorAll('.banner-dot').forEach((dot, i) => {
+                    dot.classList.toggle('active', i === slideIndex);
+                });
+            }
+
+            function nextSlide() { showSlide(slideIndex + 1); }
+            
+            function startAuto() { slideInterval = setInterval(nextSlide, 4000); }
+            function stopAuto() { clearInterval(slideInterval); }
+
+            container.addEventListener('mouseenter', stopAuto);
+            container.addEventListener('mouseleave', startAuto);
+
+            container.addEventListener('touchstart', e => {
+                startX = e.touches[0].clientX;
+                isSwiping = true;
+                stopAuto();
+            }, {passive: true});
+
+            container.addEventListener('touchend', e => {
+                if(!isSwiping) return;
+                let endX = e.changedTouches[0].clientX;
+                let diff = startX - endX;
+                if(diff > 50) { showSlide(slideIndex + 1); } 
+                else if(diff < -50) { showSlide(slideIndex - 1); }
+                isSwiping = false;
+                startAuto();
+            }, {passive: true});
+
+            window.currentSlide = function(i) {
+                showSlide(i);
+                stopAuto();
+                startAuto();
+            };
+
+            startAuto();
+        }
+
+        function sanitizeInput(str) {
+            let temp = document.createElement('div');
+            temp.textContent = str;
+            return temp.innerHTML;
+        }
+
+        function handleLogoSecret() {
+            secretClicks++;
+            if(secretClicks >= 5) {
+                let pass = prompt('Enter Owner PIN:');
+                if(pass === '7860') {
+                    document.getElementById('secretAdminBtn').style.display = 'inline-flex';
+                    alert('Success! Admin button visible.');
+                } else if(pass !== null) { alert('Incorrect PIN!'); }
+                secretClicks = 0;
+            }
+            setTimeout(() => { secretClicks = 0; }, 3000);
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.bottom-item').forEach(el => el.classList.remove('active'));
+
+            if(tab === 'home') {
+                document.getElementById('homeView').classList.add('active');
+                document.getElementById('navHome').classList.add('active');
+                document.getElementById('searchContainer').style.display = 'flex';
+            } else if(tab === 'account') {
+                document.getElementById('accountView').classList.add('active');
+                document.getElementById('navAccount').classList.add('active');
+                document.getElementById('searchContainer').style.display = 'none';
+                checkAuthUI();
+            } else if(tab === 'detail') {
+                document.getElementById('detailView').classList.add('active');
+                document.getElementById('searchContainer').style.display = 'none';
+            }
+        }
+
+        function openSubView(subId) {
+            document.querySelectorAll('.sub-view').forEach(el => el.classList.remove('active'));
+            if(subId === 'dashboard') {
+                document.getElementById('subViewDashboard').classList.add('active');
+            } else if(subId === 'orders') {
+                document.getElementById('subViewOrders').classList.add('active');
+                loadOrderHistory();
+            } else if(subId === 'wishlist') {
+                document.getElementById('subViewWishlist').classList.add('active');
+                renderWishlistUI();
+            } else if(subId === 'profile') {
+                document.getElementById('subViewProfile').classList.add('active');
+                document.getElementById('editProfileName').value = currentUser.name;
+                document.getElementById('editProfilePhone').value = currentUser.phone;
+            } else if(subId === 'address') {
+                document.getElementById('subViewAddress').classList.add('active');
+                document.getElementById('editAddressInput').value = currentUser.address;
+            } else if(subId === 'language') {
+                document.getElementById('subViewLanguage').classList.add('active');
+                document.getElementById('languageSelect').value = currentLang;
+            }
+        }
+
+        function loginCustomer() {
+            let name = sanitizeInput(document.getElementById('custName').value.trim());
+            let phone = sanitizeInput(document.getElementById('custPhone').value.trim());
+            let address = sanitizeInput(document.getElementById('custAddress').value.trim());
+
+            if(!name || phone.length !== 10 || isNaN(phone) || !address) {
+                alert('Please enter a valid name, 10-digit mobile number, and address.');
+                return;
+            }
+
+            currentUser = { name, phone, address };
+            localStorage.setItem('zcart_secure_user', JSON.stringify(currentUser));
+            alert('Login Successful!');
+            checkAuthUI();
+        }
+
+        function logoutCustomer() {
+            localStorage.removeItem('zcart_secure_user');
+            currentUser = null;
+            checkAuthUI();
+            alert('Logged out.');
+        }
+
+        function saveProfileChanges() {
+            let name = sanitizeInput(document.getElementById('editProfileName').value.trim());
+            let phone = sanitizeInput(document.getElementById('editProfilePhone').value.trim());
+            if(!name || phone.length !== 10 || isNaN(phone)) {
+                alert('Please enter a valid name and 10-digit mobile number.');
+                return;
+            }
+            currentUser.name = name;
+            currentUser.phone = phone;
+            localStorage.setItem('zcart_secure_user', JSON.stringify(currentUser));
+            alert('Profile updated successfully!');
+            checkAuthUI();
+            openSubView('dashboard');
+        }
+
+        function saveNewAddress() {
+            let newAddr = sanitizeInput(document.getElementById('editAddressInput').value.trim());
+            if(!newAddr) { alert('Address cannot be empty.'); return; }
+            currentUser.address = newAddr;
+            localStorage.setItem('zcart_secure_user', JSON.stringify(currentUser));
+            alert('Address updated successfully!');
+            openSubView('dashboard');
+        }
+
+        function changeLanguageSetting(lang) {
+            currentLang = lang;
+            localStorage.setItem('zcart_lang', lang);
+            alert('Language updated to English.');
+        }
+
+        async function checkAuthUI() {
+            let authBox = document.getElementById('authContainer');
+            let profileBox = document.getElementById('profileContainer');
+
+            if(currentUser) {
+                authBox.style.display = 'none';
+                profileBox.style.display = 'block';
+                document.getElementById('profileNameDisplay').innerText = currentUser.name;
+                openSubView('dashboard');
+            } else {
+                authBox.style.display = 'block';
+                profileBox.style.display = 'none';
+            }
+        }
+
+        async function loadOrderHistory() {
+            let histList = document.getElementById('orderHistoryList');
+            histList.innerHTML = 'Loading orders...';
+            try {
+                let res = await fetch('/api/orders');
+                let orders = await res.json();
+                let myOrders = orders.filter(o => o.customer && o.customer.phone === currentUser.phone);
+                if(myOrders.length > 0) {
+                    let hHtml = '';
+                    myOrders.reverse().forEach(o => {
+                        hHtml += `<div style="background:#f8fafc; padding:8px; border-radius:6px; margin-bottom:6px; border:1px solid var(--border);">
+                            <div style="font-weight:700; color:var(--primary);">Order #${o.id} - ₹${o.amount}</div>
+                            <div style="color:var(--text-main); margin:2px 0;">${o.items}</div>
+                            <div style="font-size:9px; color:var(--success); font-weight:700;">Status: Placed / Verified</div>
+                        </div>`;
+                    });
+                    histList.innerHTML = hHtml;
+                } else { histList.innerHTML = 'No orders found.'; }
+            } catch(e) {
+                histList.innerHTML = 'Failed to load orders.';
+            }
+        }
+
+        function toggleWishlist(id, event) {
+            if(event) event.stopPropagation();
+            let index = wishlist.indexOf(id);
+            if(index > -1) {
+                wishlist.splice(index, 1);
+                showToast('Removed from wishlist');
+            } else {
+                wishlist.push(id);
+                showToast('Added to wishlist!');
+            }
+            localStorage.setItem('zcart_wishlist', JSON.stringify(wishlist));
+            renderProducts(allProducts);
+            if(document.getElementById('subViewWishlist').classList.contains('active')) {
+                renderWishlistUI();
+            }
+        }
+
+        function renderWishlistUI() {
+            let container = document.getElementById('wishlistContainer');
+            let wishProducts = allProducts.filter(p => wishlist.includes(p.id));
+            if(wishProducts.length === 0) {
+                container.innerHTML = '<div style="grid-column: span 2; text-align:center; padding:20px; color:var(--text-muted); font-size:11px;">Your wishlist is empty.</div>';
+                return;
+            }
+            let html = '';
+            wishProducts.forEach(p => {
+                let mainImg = p.image || (p.images && p.images[0]) || 'https://images.unsplash.com/photo-1558788353-f76d92427f16';
+                html += `
+                    <div class="product-card" onclick="openProductDetail(${p.id})">
+                        <button class="wishlist-btn active" onclick="toggleWishlist(${p.id}, event)"><i class="fa-solid fa-heart"></i></button>
+                        <div class="product-img-box" style="height:120px;">
+                            <img src="${mainImg}" loading="lazy">
+                        </div>
+                        <div class="product-details" style="padding:6px;">
+                            <div class="product-name" style="font-size:10px;">${p.name}</div>
+                            <div class="current-price" style="font-size:12px;">₹${p.price}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        async function loadProducts() {
+            try {
+                let res = await fetch('/api/products');
+                allProducts = await res.json();
+                setupCategories(allProducts);
+                renderProducts(allProducts);
+            } catch(e) {
+                document.getElementById('productGrid').innerHTML = '<div style="grid-column:span 2; text-align:center; padding:20px;">Failed to load products.</div>';
+            }
+        }
+
+        function setupCategories(products) {
+            let categories = ['All', ...new Set(products.map(p => p.category))];
+            let bar = document.getElementById('categoriesBar');
+            let html = '';
+            categories.forEach(cat => {
+                let activeClass = cat === currentCategory ? 'active' : '';
+                html += `<div class="cat-chip ${activeClass}" onclick="filterCategory('${cat}', this)">${cat === 'All' ? 'All Plants' : cat}</div>`;
+            });
+            bar.innerHTML = html;
+        }
+
+        function filterCategory(cat, element) {
+            currentCategory = cat;
+            document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
+            element.classList.add('active');
+            document.getElementById('searchInput').value = '';
+
+            if(cat === 'All') { renderProducts(allProducts); } 
+            else { renderProducts(allProducts.filter(p => p.category === cat)); }
+        }
+
+        function handleSearch() {
+            let query = sanitizeInput(document.getElementById('searchInput').value.toLowerCase().trim());
+            let filtered = allProducts.filter(p => 
+                p.name.toLowerCase().includes(query) || 
+                p.desc.toLowerCase().includes(query) || 
+                p.category.toLowerCase().includes(query)
+            );
+            renderProducts(filtered);
+        }
+
+        function renderProducts(products) {
+            let grid = document.getElementById('productGrid');
+            if(products.length === 0) {
+                grid.innerHTML = '<div style="grid-column: span 2; text-align:center; padding:30px; color:var(--text-muted); font-size:12px;">No plants found.</div>';
+                return;
+            }
+            let html = '';
+            products.forEach(p => {
+                let rating = p.rating || (4.2 + (p.id % 7) * 0.1).toFixed(1);
+                let mainImg = p.image || (p.images && p.images[0]) || 'https://images.unsplash.com/photo-1558788353-f76d92427f16';
+                let isWish = wishlist.includes(p.id) ? 'active' : '';
+                let heartIcon = wishlist.includes(p.id) ? 'fa-solid fa-heart' : 'fa-regular fa-heart';
+                html += `
+                    <div class="product-card" onclick="openProductDetail(${p.id})">
+                        <button class="wishlist-btn ${isWish}" onclick="toggleWishlist(${p.id}, event)"><i class="${heartIcon}"></i></button>
+                        <div>
+                            <div class="product-img-box">
+                                <span class="badge">${p.badge}</span>
+                                <img src="${mainImg}" alt="${p.name}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1558788353-f76d92427f16'">
+                            </div>
+                            <div class="product-details">
+                                <div class="product-name">${p.name}</div>
+                                <div class="product-desc">${p.desc}</div>
+                                <div class="rating-box">
+                                    <span class="stars">${rating} <i class="fa-solid fa-star"></i></span>
+                                </div>
+                                <div class="price-box">
+                                    <span class="current-price">₹${p.price}</span>
+                                    <span class="orig-price">₹${p.origPrice}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="padding: 0 8px 8px 8px;">
+                            <button class="btn-add" onclick="event.stopPropagation(); addToCartById(${p.id})">Add to Cart</button>
+                        </div>
+                    </div>
+                `;
+            });
+            grid.innerHTML = html;
+        }
+
+        function openProductDetail(id) {
+            let p = allProducts.find(item => item.id === id);
+            if(!p) return;
+
+            let imgList = (p.images && p.images.length > 0) ? p.images.filter(Boolean) : [p.image];
+            while(imgList.length < 3) { imgList.push(imgList[0]); }
+
+            let related = allProducts.filter(item => item.category === p.category && item.id !== p.id).slice(0, 4);
+            if(related.length === 0) related = allProducts.filter(item => item.id !== p.id).slice(0, 4);
+
+            let relatedHtml = '';
+            related.forEach(rel => {
+                let relImg = rel.image || (rel.images && rel.images[0]) || '';
+                relatedHtml += `
+                    <div class="product-card" onclick="openProductDetail(${rel.id})">
+                        <div class="product-img-box" style="height: 100px;">
+                            <img src="${relImg}" loading="lazy">
+                        </div>
+                        <div class="product-details" style="padding: 6px;">
+                            <div class="product-name" style="font-size: 10px;">${rel.name}</div>
+                            <div class="current-price" style="font-size: 12px;">₹${rel.price}</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('productDetailContainer').innerHTML = `
+                <div class="detail-card">
+                    <img src="${imgList[0]}" class="main-detail-img" id="mainDisplayImg" alt="${p.name}">
+                    <div class="thumbnail-row">
+                        <img src="${imgList[0]}" class="thumb-img active-thumb" onclick="changeMainImage('${imgList[0]}', this)">
+                        <img src="${imgList[1]}" class="thumb-img" onclick="changeMainImage('${imgList[1]}', this)">
+                        <img src="${imgList[2]}" class="thumb-img" onclick="changeMainImage('${imgList[2]}', this)">
+                    </div>
+                    <h2 style="font-size: 15px; margin: 6px 0; font-weight: 800;">${p.name}</h2>
+                    <div class="price-box" style="margin-bottom: 10px;">
+                        <span style="font-size: 17px; font-weight: 800; color: var(--success);">₹${p.price}</span>
+                        <span style="font-size: 12px; color: #9ca3af; text-decoration: line-through;">₹${p.origPrice}</span>
+                    </div>
+                    <p style="font-size: 11px; color: #4b5563; line-height: 1.5; margin-bottom: 12px;">${p.desc}</p>
+                    <button class="btn-primary" onclick="addToCartById(${p.id})" style="background: var(--accent); font-size: 13px; padding: 11px;"><i class="fa-solid fa-cart-shopping"></i> Add to Cart</button>
+                </div>
+                <div class="detail-card">
+                    <h3 style="font-size: 13px; margin-bottom: 10px; font-weight: 800;">Related Plants</h3>
+                    <div class="product-grid" style="grid-template-columns: repeat(2, 1fr); gap: 8px;">${relatedHtml}</div>
+                </div>
+            `;
+
+            switchTab('detail');
+            window.scrollTo(0, 0);
+        }
+
+        function changeMainImage(imgUrl, thumbElement) {
+            document.getElementById('mainDisplayImg').src = imgUrl;
+            document.querySelectorAll('.thumb-img').forEach(el => el.classList.remove('active-thumb'));
+            thumbElement.classList.add('active-thumb');
+        }
+
+        function addToCartById(id) {
+            let product = allProducts.find(i => i.id === id);
+            if(!product) return;
+            let item = cart.find(i => i.id === product.id);
+            if (item) { item.qty++; } else { cart.push({ ...product, qty: 1 }); }
+            updateCartUI();
+            showToast(`✓ ${product.name} added!`);
+        }
+
+        function showToast(message) {
+            let toast = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = message;
+            toast.className = 'show';
+            setTimeout(() => { toast.className = toast.className.replace('show', ''); }, 2500);
+        }
+
+        function updateCartUI() {
+            let totalCount = cart.reduce((sum, i) => sum + i.qty, 0);
+            document.getElementById('cartBadge').innerText = totalCount;
+
+            let container = document.getElementById('cartItemsContainer');
+            if (cart.length === 0) {
+                container.innerHTML = 'Your cart is empty.';
+                document.getElementById('cartTotal').innerText = '0';
+                return;
+            }
+
+            let html = '';
+            let totalAmt = 0;
+            cart.forEach(i => {
+                totalAmt += i.price * i.qty;
+                html += `
+                    <div class="cart-item">
+                        <div><strong>${i.name}</strong><br>₹${i.price} × ${i.qty}</div>
+                        <button style="background:#ef4444; color:white; border:none; padding:3px 8px; border-radius:4px; cursor:pointer; font-weight:700; font-size:10px;" onclick="removeFromCart(${i.id})">Remove</button>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+            document.getElementById('cartTotal').innerText = totalAmt;
+        }
+
+        function removeFromCart(id) {
+            cart = cart.filter(i => i.id !== id);
+            updateCartUI();
+        }
+
+        function toggleCart() {
+            document.getElementById('cartDrawer').classList.toggle('open');
+        }
+
+        function proceedToCheckout() {
+            if(cart.length === 0) { alert('Your cart is empty!'); return; }
+            if(!currentUser) {
+                alert('Please complete login first in the Account tab!');
+                toggleCart();
+                switchTab('account');
+                return;
+            }
+
+            let totalAmt = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+            document.getElementById('payModalAmount').innerText = totalAmt;
+
+            let upiUrl = `upi://pay?pa=6200002592@axl&pn=ZCartSecureNursery&am=${totalAmt}&cu=INR`;
+            document.getElementById('upiAppBtn').href = upiUrl;
+            document.getElementById('dynamicQrImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(upiUrl)}`;
+
+            document.getElementById('paymentModal').style.display = 'flex';
+        }
+
+        function closePaymentModal() {
+            document.getElementById('paymentModal').style.display = 'none';
+        }
+
+        async function confirmDirectOrder() {
+            let totalAmt = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+            let itemsSummary = cart.map(i => `${sanitizeInput(i.name)} (x${i.qty})`).join(', ');
+
+            let orderData = {
+                items: itemsSummary,
+                amount: totalAmt,
+                customer: currentUser,
+                txId: 'SECURE-UPI-VERIFIED'
+            };
+
+            let res = await fetch('/api/orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(orderData)
+            });
+            let data = await res.json();
+            if(data.success) {
+                alert(`Order placed successfully! Order ID: ${data.order.id}`);
+                cart = [];
+                updateCartUI();
+                toggleCart();
+                closePaymentModal();
+                switchTab('account');
+                openSubView('orders');
+            }
+        }
+
+        loadProducts();
+        initBannerSlider();
+    </script>
+</body>
+</html>

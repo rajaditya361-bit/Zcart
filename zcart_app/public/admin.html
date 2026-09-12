@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZCart - Secure Admin Panel</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1e3c72;
+            --accent: #ff5722;
+            --success: #388e3c;
+            --bg-main: #f4f6fb;
+            --surface: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+            --radius-sm: 8px;
+            --radius-md: 14px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: var(--bg-main); color: var(--text-main); padding-bottom: 50px; }
+
+        header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2874f0 100%);
+            color: white;
+            padding: 14px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        header h1 { font-size: 16px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+        .back-store { color: white; text-decoration: none; font-size: 11px; background: rgba(255,255,255,0.2); padding: 5px 10px; border-radius: 6px; font-weight: 700; }
+
+        .container { padding: 12px; max-width: 800px; margin: 0 auto; }
+        
+        .admin-card { background: var(--surface); border-radius: var(--radius-md); padding: 14px; margin-bottom: 12px; border: 1px solid var(--border); box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+        .admin-card h3 { font-size: 14px; font-weight: 800; color: var(--primary); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+
+        .form-group { margin-bottom: 10px; }
+        .form-group label { display: block; font-size: 11px; font-weight: 700; margin-bottom: 4px; color: #4b5563; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 12px; outline: none; background: #f9fafb; }
+        .form-group input:focus { border-color: var(--primary); background: white; }
+
+        .btn-primary { background: var(--primary); color: white; border: none; width: 100%; padding: 9px; border-radius: var(--radius-sm); font-weight: 700; font-size: 12px; cursor: pointer; }
+        .btn-danger { background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-weight: 700; font-size: 10px; cursor: pointer; }
+        .btn-edit { background: #3b82f6; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-weight: 700; font-size: 10px; cursor: pointer; margin-right: 4px; }
+
+        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 8px; background: #f8fafc; border: 1px solid var(--border); border-radius: 6px; margin-bottom: 6px; font-size: 11px; }
+
+        /* Login Screen */
+        #loginScreen { max-width: 340px; margin: 60px auto; background: var(--surface); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--border); text-align: center; }
+        #adminDashboard { display: none; }
+    </style>
+</head>
+<body>
+
+    <!-- PIN Login Screen -->
+    <div id="loginScreen">
+        <h2 style="font-size: 16px; margin-bottom: 10px; color: var(--primary);">Admin Portal Login</h2>
+        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">Enter 4-digit Owner PIN to manage ZCart</p>
+        <div class="form-group">
+            <input type="password" id="adminPinInput" placeholder="Enter PIN (e.g. 7860)" maxlength="4" style="text-align: center; font-size: 16px; letter-spacing: 4px;">
+        </div>
+        <button class="btn-primary" onclick="verifyAdminPin()">Login to Dashboard</button>
+        <br><br>
+        <a href="/" style="font-size: 11px; color: var(--primary); text-decoration: none; font-weight: 700;">← Back to Store</a>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="adminDashboard">
+        <header>
+            <h1><i class="fa-solid fa-user-gear"></i> ZCart Admin Panel</h1>
+            <a href="/" class="back-store">View Store</a>
+        </header>
+
+        <div class="container">
+            
+            <!-- Category Management Card -->
+            <div class="admin-card">
+                <h3><i class="fa-solid fa-tags"></i> Manage Categories (Edit / Rename)</h3>
+                <div class="form-group">
+                    <label>Select or Edit Category Name</label>
+                    <input type="hidden" id="editCategoryId">
+                    <input type="text" id="categoryNameInput" placeholder="Enter category name to update">
+                </div>
+                <button class="btn-primary" id="saveCategoryBtn" onclick="saveCategoryName()" style="background: var(--success);">Update Category Name</button>
+                
+                <div style="margin-top: 12px; max-height: 150px; overflow-y: auto;" id="categoryListContainer">
+                    <!-- Categories will load here -->
+                </div>
+            </div>
+
+            <!-- Add Product Card -->
+            <div class="admin-card">
+                <h3><i class="fa-solid fa-plus-circle"></i> Add New Plant Product</h3>
+                <div class="form-group">
+                    <label>Product Name</label>
+                    <input type="text" id="pName" placeholder="e.g. Cheti Rose Plant">
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <input type="text" id="pCategory" placeholder="e.g. Roses">
+                </div>
+                <div class="form-group">
+                    <label>Price (₹)</label>
+                    <input type="number" id="pPrice" placeholder="199">
+                </div>
+                <div class="form-group">
+                    <label>Original Price (₹)</label>
+                    <input type="number" id="pOrigPrice" placeholder="399">
+                </div>
+                <div class="form-group">
+                    <label>Badge / Tag</label>
+                    <input type="text" id="pBadge" placeholder="Best Seller">
+                </div>
+                <div class="form-group">
+                    <label>Main Image URL</label>
+                    <input type="text" id="pImage" placeholder="https://...">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="pDesc" rows="2" placeholder="Plant care details..."></textarea>
+                </div>
+                <button class="btn-primary" onclick="addNewProduct()">Add Product to Store</button>
+            </div>
+
+            <!-- Orders Management Card -->
+            <div class="admin-card">
+                <h3><i class="fa-solid fa-box-archive"></i> Customer Orders</h3>
+                <div id="adminOrdersList" style="font-size: 11px; color: var(--text-muted);">Loading orders...</div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function verifyAdminPin() {
+            let pin = document.getElementById('adminPinInput').value;
+            if(pin === '7860') {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('adminDashboard').style.display = 'block';
+                loadAdminData();
+            } else {
+                alert('Incorrect PIN!');
+            }
+        }
+
+        let allProductsCache = [];
+
+        async function loadAdminData() {
+            loadAdminOrders();
+            loadCategoriesList();
+        }
+
+        async function loadCategoriesList() {
+            try {
+                let res = await fetch('/api/products');
+                let products = await res.json();
+                allProductsCache = products;
+                let categories = [...new Set(products.map(p => p.category))];
+                
+                let html = '';
+                categories.forEach(cat => {
+                    html += `
+                        <div class="item-row">
+                            <span><strong>${cat}</strong></span>
+                            <div>
+                                <button class="btn-edit" onclick="prepareEditCategory('${cat}')">Edit Name</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                document.getElementById('categoryListContainer').innerHTML = html || 'No categories found.';
+            } catch(e) {
+                document.getElementById('categoryListContainer').innerHTML = 'Failed to load categories.';
+            }
+        }
+
+        function prepareEditCategory(oldName) {
+            document.getElementById('categoryNameInput').value = oldName;
+            document.getElementById('editCategoryId').value = oldName; // Storing old name reference
+            document.getElementById('categoryNameInput').focus();
+        }
+
+        async function saveCategoryName() {
+            let oldName = document.getElementById('editCategoryId').value;
+            let newName = document.getElementById('categoryNameInput').value.trim();
+
+            if(!newName) {
+                alert('Please enter a valid category name.');
+                return;
+            }
+
+            if(!oldName) {
+                alert('Please select a category from the list below to edit its name.');
+                return;
+            }
+
+            // Update all products belonging to this category in cache/backend
+            let matchingProducts = allProductsCache.filter(p => p.category === oldName);
+            
+            let successCount = 0;
+            for(let prod of matchingProducts) {
+                prod.category = newName;
+                let res = await fetch(`/api/products/${prod.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(prod)
+                });
+                if(res.ok) successCount++;
+            }
+
+            alert(`Category renamed from "${oldName}" to "${newName}" successfully!`);
+            document.getElementById('categoryNameInput').value = '';
+            document.getElementById('editCategoryId').value = '';
+            loadCategoriesList();
+        }
+
+        async function addNewProduct() {
+            let name = document.getElementById('pName').value.trim();
+            let category = document.getElementById('pCategory').value.trim();
+            let price = Number(document.getElementById('pPrice').value);
+            let origPrice = Number(document.getElementById('pOrigPrice').value);
+            let badge = document.getElementById('pBadge').value.trim();
+            let image = document.getElementById('pImage').value.trim();
+            let desc = document.getElementById('pDesc').value.trim();
+
+            if(!name || !category || !price) {
+                alert('Please fill name, category and price.');
+                return;
+            }
+
+            let newProd = {
+                id: Date.now(),
+                name, category, price, origPrice, badge, image, desc,
+                images: [image, image, image]
+            };
+
+            let res = await fetch('/api/products', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newProd)
+            });
+
+            if(res.ok) {
+                alert('Product added successfully!');
+                document.getElementById('pName').value = '';
+                document.getElementById('pCategory').value = '';
+                document.getElementById('pPrice').value = '';
+                document.getElementById('pOrigPrice').value = '';
+                document.getElementById('pBadge').value = '';
+                document.getElementById('pImage').value = '';
+                document.getElementById('pDesc').value = '';
+                loadCategoriesList();
+            } else {
+                alert('Failed to add product.');
+            }
+        }
+
+        async function loadAdminOrders() {
+            let container = document.getElementById('adminOrdersList');
+            try {
+                let res = await fetch('/api/orders');
+                let orders = await res.json();
+                if(orders.length === 0) {
+                    container.innerHTML = 'No orders received yet.';
+                    return;
+                }
+                let html = '';
+                orders.reverse().forEach(o => {
+                    let cust = o.customer || {};
+                    html += `
+                        <div style="background:#f8fafc; padding:8px; border-radius:6px; margin-bottom:6px; border:1px solid var(--border);">
+                            <div><strong>Order ID:</strong> #${o.id} | <strong>Amount:</strong> ₹${o.amount}</div>
+                            <div><strong>Customer:</strong> ${cust.name || 'N/A'} (${cust.phone || 'N/A'})</div>
+                            <div><strong>Address:</strong> ${cust.address || 'N/A'}</div>
+                            <div><strong>Items:</strong> ${o.items}</div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            } catch(e) {
+                container.innerHTML = 'Failed to load orders.';
+            }
+        }
+    </script>
+</body>
+</html>

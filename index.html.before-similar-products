@@ -1,0 +1,2575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZCart - Online Shopping</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f1f3f6;
+            color: #222;
+        }
+
+        header {
+            background: #2874f0;
+            color: white;
+            padding: 12px 5%;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-btn {
+            border: none;
+            background: transparent;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 4px 8px;
+            min-width: 40px;
+        }
+
+        .nav-btn:active {
+            transform: scale(0.92);
+        }
+
+        .logo {
+            font-size: 25px;
+            font-weight: bold;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .search {
+            flex: 1;
+            display: flex;
+            max-width: 650px;
+        }
+
+        .search input {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            outline: none;
+            font-size: 15px;
+        }
+
+        .search button {
+            padding: 0 18px;
+            border: none;
+            background: white;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .cart {
+            font-weight: bold;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .categories {
+            background: white;
+            padding: 15px 5%;
+            display: flex;
+            gap: 25px;
+            overflow-x: auto;
+            box-shadow: 0 1px 3px #ccc;
+        }
+
+        .category {
+            min-width: 80px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .category-icon {
+            font-size: 30px;
+            margin-bottom: 5px;
+        }
+
+        .banner {
+            margin: 15px auto;
+            width: 90%;
+            max-width: 1200px;
+            background: linear-gradient(90deg, #2874f0, #5fa8ff);
+            color: white;
+            padding: 35px;
+            border-radius: 5px;
+        }
+
+        .banner h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .products {
+            width: 90%;
+            max-width: 1200px;
+            margin: 20px auto;
+        }
+
+        .products h2 {
+            background: white;
+            padding: 18px;
+            margin-bottom: 2px;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+        }
+
+        .product {
+            background: white;
+            padding: 15px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .product:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 3px 10px #ccc;
+        }
+
+        .product-image {
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 80px;
+            background: #fafafa;
+            margin-bottom: 12px;
+        }
+
+        .product-name {
+            font-size: 15px;
+            margin-bottom: 8px;
+        }
+
+        .price {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .rating {
+            display: inline-block;
+            background: #388e3c;
+            color: white;
+            padding: 3px 7px;
+            border-radius: 3px;
+            font-size: 12px;
+            margin: 7px 0;
+        }
+
+        .add-cart {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            background: #ff9f00;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+
+        footer {
+            margin-top: 30px;
+            background: #172337;
+            color: white;
+            padding: 40px 5%;
+            text-align: center;
+        }
+
+        @media (max-width: 800px) {
+            header {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .search {
+                order: 3;
+                flex-basis: 100%;
+            }
+
+            .product-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .banner h1 {
+                font-size: 24px;
+            }
+
+            .product-image {
+                height: 140px;
+                font-size: 60px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="cartToast" style="
+    position:fixed;
+    left:50%;
+    bottom:24px;
+    transform:translate(-50%,20px);
+    width:calc(100% - 32px);
+    max-width:380px;
+    background:#ffffff;
+    color:#222;
+    padding:14px 16px;
+    border-radius:14px;
+    font-size:15px;
+    z-index:99999;
+    display:none;
+    opacity:0;
+    box-shadow:0 8px 30px rgba(0,0,0,0.18);
+    border:1px solid #eeeeee;
+    transition:opacity .25s ease, transform .25s ease;
+">
+    <div style="display:flex;align-items:center;gap:12px;">
+        <div style="
+            width:36px;
+            height:36px;
+            border-radius:50%;
+            background:#e8f5e9;
+            color:#2e7d32;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:21px;
+            font-weight:bold;
+            flex-shrink:0;
+        ">✓</div>
+        <div style="flex:1;">
+            <div style="font-weight:700;font-size:15px;">Added to Cart</div>
+            <div id="cartToastName" style="font-size:13px;color:#666;margin-top:2px;"></div>
+        </div>
+        <button onclick="showCart()" style="
+            border:none;
+            background:none;
+            color:#2874f0;
+            font-weight:700;
+            font-size:13px;
+            cursor:pointer;
+            padding:6px;
+        ">View Cart</button>
+    </div>
+</div>
+
+<header>
+    <button class="nav-btn" onclick="zcartGoBack()" aria-label="Go Back">←</button>
+    <div class="logo" onclick="zcartGoHome()" style="cursor:pointer;">ZCart</div>
+    <button class="nav-btn" onclick="zcartGoHome()" aria-label="Home">🏠</button>
+
+    <div class="search">
+        <input type="text" id="searchInput" placeholder="Search for products, brands and more">
+        <button onclick="searchProducts()">🔍</button>
+    </div>
+
+    <div class="cart" onclick="showCart()">
+        🛒 Cart (<span id="cartCount">0</span>)
+    </div>
+    <div class="cart" onclick="showMyOrders()">📦 My Orders</div>
+
+    <div class="cart" onclick="showCustomerLogin()"> 👤 Customer</div>
+<div class="cart" onclick="showSellerLogin()">🧑‍💼 Seller</div>
+</header>
+<div id="searchResults" style="margin:10px 15px;font-size:18px;font-weight:bold;"></div>
+
+<div class="categories">
+
+    <div class="category" onclick="filterCategory('all')">
+        <div class="category-icon">🛍️</div>
+        All
+    </div>
+
+    <div class="category" onclick="filterCategory('mobile')">
+        <div class="category-icon">📱</div>
+        Mobiles
+    </div>
+
+    <div class="category" onclick="filterCategory('laptop')">
+        <div class="category-icon">💻</div>
+        Laptops
+    </div>
+
+    <div class="category" onclick="filterCategory('fashion')">
+        <div class="category-icon">👕</div>
+        Fashion
+    </div>
+
+    <div class="category" onclick="filterCategory('electronics')">
+        <div class="category-icon">🎧</div>
+        Electronics
+    </div>
+
+    <div class="category" onclick="filterCategory('home')">
+        <div class="category-icon">🏠</div>
+        Home
+    </div>
+
+</div>
+
+<section class="banner">
+    <h1>Welcome to ZCart</h1>
+    <p>India's next generation online shopping platform</p>
+</section>
+
+<section class="products">
+
+    <h2>Deals of the Day</h2>
+
+    <div class="product-grid" id="productGrid">
+</div>
+</section>
+
+<div id="productModal" style="
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(15,15,15,.72);
+    z-index:9998;
+    overflow-y:auto;
+    padding:12px 0;
+    box-sizing:border-box;
+">
+    <div style="
+        background:#f7f8fa;
+        width:94%;
+        max-width:620px;
+        min-height:92vh;
+        margin:0 auto;
+        border-radius:18px;
+        overflow:hidden;
+        box-shadow:0 15px 45px rgba(0,0,0,.28);
+    ">
+
+        <div style="
+            height:54px;
+            background:#fff;
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            padding:0 16px;
+            border-bottom:1px solid #eee;
+            position:sticky;
+            top:0;
+            z-index:5;
+        ">
+            <div style="
+                font-size:17px;
+                font-weight:800;
+                color:#222;
+            ">
+                Product Details
+            </div>
+
+            <button onclick="closeProductDetails()" style="
+                width:38px;
+                height:38px;
+                border:none;
+                border-radius:50%;
+                background:#f1f3f6;
+                color:#333;
+                font-size:20px;
+                cursor:pointer;
+            ">✕</button>
+        </div>
+
+        <div id="productDetails" style="
+            padding:12px;
+        "></div>
+
+    </div>
+</div>
+
+<div id="ordersModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:10001;">
+  <div style="background:white; width:90%; max-width:600px; margin:5% auto; padding:20px; border-radius:12px; max-height:90vh; overflow:auto;">
+    <h2>📦 My Orders</h2>
+    <div id="ordersList">Loading orders...</div>
+    <button onclick="closeMyOrders()" style="margin-top:15px;">Close</button>
+  </div>
+</div>
+
+<div id="cartModal" style="
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(15,15,15,.68);
+    z-index:9999;
+    overflow-y:auto;
+    padding:18px 0;
+    box-sizing:border-box;
+">
+    <div style="
+        background:#f7f8fa;
+        width:94%;
+        max-width:520px;
+        min-height:90vh;
+        margin:0 auto;
+        border-radius:18px;
+        overflow:hidden;
+        box-shadow:0 12px 40px rgba(0,0,0,.25);
+        display:flex;
+        flex-direction:column;
+    ">
+
+        <div style="
+            background:#fff;
+            padding:17px 18px;
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            border-bottom:1px solid #eee;
+            position:sticky;
+            top:0;
+            z-index:2;
+        ">
+            <div>
+                <div style="font-size:20px;font-weight:800;color:#222;">
+                    🛒 My Cart
+                </div>
+                <div style="font-size:12px;color:#777;margin-top:3px;">
+                    Review your items before checkout
+                </div>
+            </div>
+
+            <button onclick="closeCart()" style="
+                width:38px;
+                height:38px;
+                border:none;
+                border-radius:50%;
+                background:#f1f3f6;
+                color:#333;
+                font-size:21px;
+                cursor:pointer;
+            ">×</button>
+        </div>
+
+        <div id="cartItems" style="
+            padding:12px;
+            flex:1;
+        "></div>
+
+        <div style="
+            background:#fff;
+            padding:16px;
+            border-top:1px solid #e8e8e8;
+            box-shadow:0 -4px 15px rgba(0,0,0,.06);
+            position:sticky;
+            bottom:0;
+        ">
+            <div style="
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                margin-bottom:12px;
+            ">
+                <span style="font-size:14px;color:#666;">
+                    Total Amount
+                </span>
+
+                <strong id="cartTotal" style="
+                    font-size:22px;
+                    color:#111;
+                ">Total: ₹0</strong>
+            </div>
+
+            <button onclick="openCheckout()" style="
+                width:100%;
+                border:none;
+                border-radius:10px;
+                padding:14px;
+                background:#2874f0;
+                color:white;
+                font-size:16px;
+                font-weight:800;
+                cursor:pointer;
+                box-shadow:0 5px 14px rgba(40,116,240,.25);
+            ">
+                Proceed to Checkout →
+            </button>
+        </div>
+
+    </div>
+</div>
+<div id="checkoutModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:10000;">
+    <div style="background:white; width:90%; max-width:500px; margin:5% auto; padding:20px; border-radius:12px; max-height:90vh; overflow:auto;">
+        <h2>🛍️ Checkout</h2>
+
+        <div id="checkoutSummary"></div>
+
+        <input id="checkoutName" type="text" placeholder="Full Name"
+               style="width:100%;padding:12px;margin:8px 0;box-sizing:border-box;">
+
+        <input id="checkoutPhone" type="tel" placeholder="Phone Number"
+               style="width:100%;padding:12px;margin:8px 0;box-sizing:border-box;">
+
+        <textarea id="checkoutAddress" placeholder="Delivery Address"
+                  style="width:100%;padding:12px;margin:8px 0;box-sizing:border-box;height:100px;"></textarea>
+
+        <select id="checkoutPayment"
+                style="width:100%;padding:12px;margin:8px 0;box-sizing:border-box;">
+            <option value="">Select Payment Method</option>
+            <option value="COD">Cash on Delivery</option>
+            <option value="UPI">UPI</option>
+            <option value="Card">Card</option>
+        </select>
+
+        <button onclick="placeOrder()"
+                style="width:100%;padding:14px;margin-top:10px;">
+            Place Order
+        </button>
+
+        <button onclick="closeCheckout()"
+                style="width:100%;padding:12px;margin-top:8px;">
+            Cancel
+        </button>
+    </div>
+</div>
+
+<footer>
+    <h2>ZCart</h2>
+    <br>
+    <p>Online Shopping Made Simple</p>
+    <br>
+    <p>© 2026 ZCart. All Rights Reserved.</p>
+</footer>
+
+<script>
+
+async function loadProducts() {
+    try {
+        const response = await fetch("/api/products");
+        const data = await response.json();
+        window.zcartProducts = data.products;
+
+        if (!data.success) return;
+
+        const grid = document.getElementById("productGrid");
+
+        data.products.forEach(product => {
+            const card = document.createElement("div");
+            card.className = "product";
+
+            card.innerHTML = `
+                <div class="product-image" onclick="showProductDetails('${product.id}')" style="cursor:pointer;">🛍️</div>
+                <div class="product-name" onclick="showProductDetails('${product.id}')" style="cursor:pointer;">${product.name}</div>
+                <div class="rating">★ ${product.rating || 0}</div>
+                <div class="price">
+                    ₹${Number(product.price).toLocaleString("en-IN")}
+                </div>
+                <br>
+                <button class="add-cart"
+                    onclick="addToCart('${product.id}', '${product.sellerId || ""}', '${product.name.replace(/'/g, "\\'")}', ${product.price})">
+                    Add to Cart
+                </button>
+            `;
+
+            grid.appendChild(card);
+        });
+
+    } catch (error) {
+        console.error("Product loading failed:", error);
+    }
+}
+
+loadProducts();
+</script><script>
+
+    // ZCart cross-platform navigation
+    const zcartNavigation = {
+        stack: ["home"],
+        current: "home",
+        ignorePopState: false
+    };
+
+    function zcartNavigate(screen) {
+        if (zcartNavigation.current !== screen) {
+            zcartNavigation.stack.push(screen);
+            zcartNavigation.current = screen;
+            history.pushState({ zcart: true, screen: screen }, "", "#" + screen);
+        }
+    }
+
+    function zcartGoBack() {
+        if (zcartNavigation.stack.length > 1) {
+            history.back();
+        } else {
+            zcartGoHome();
+        }
+    }
+
+    function zcartGoHome() {
+        // Close all ZCart screens/modals
+        document.querySelectorAll('[id$="Modal"]').forEach(el => {
+            el.style.display = "none";
+        });
+
+        zcartNavigation.stack = ["home"];
+        zcartNavigation.current = "home";
+
+        // Replace the current state instead of creating a history loop
+        history.replaceState(
+            { zcart: true, screen: "home" },
+            "",
+            "#home"
+        );
+
+        window.scrollTo(0, 0);
+    }
+
+    window.addEventListener("popstate", function(event) {
+        if (zcartNavigation.stack.length > 1) {
+            zcartNavigation.stack.pop();
+            zcartNavigation.current =
+                zcartNavigation.stack[zcartNavigation.stack.length - 1];
+
+            document.querySelectorAll('[id$="Modal"]').forEach(el => {
+                el.style.display = "none";
+            });
+
+            const screen = zcartNavigation.current;
+
+            if (screen === "productDetails") {
+                document.getElementById("productModal").style.display = "block";
+            } else if (screen === "cart") {
+                document.getElementById("cartModal").style.display = "block";
+            } else if (screen === "checkout") {
+                document.getElementById("checkoutModal").style.display = "block";
+            } else if (screen === "orders") {
+                document.getElementById("ordersModal").style.display = "block";
+            } else if (screen === "customerDashboard") {
+                document.getElementById("customerDashboardModal").style.display = "block";
+            } else if (screen === "customerProfile") {
+                document.getElementById("customerProfileModal").style.display = "block";
+            } else if (screen === "customerLogin") {
+                document.getElementById("customerLoginModal").style.display = "block";
+            } else if (screen === "customerSignup") {
+                document.getElementById("customerSignupModal").style.display = "block";
+            } else if (screen === "sellerLogin") {
+                document.getElementById("sellerLoginModal").style.display = "block";
+            } else if (screen === "sellerSignup") {
+                document.getElementById("sellerSignupModal").style.display = "block";
+            } else if (screen === "sellerDashboard") {
+                document.getElementById("sellerDashboardModal").style.display = "block";
+            }
+
+            window.scrollTo(0, 0);
+        } else {
+            zcartGoHome();
+        }
+    });
+
+    // Initial ZCart history state
+    history.replaceState(
+        { zcart: true, screen: "home" },
+        "",
+        "#home"
+    );
+
+    let cart = JSON.parse(localStorage.getItem("zcart_cart")) || [];
+    function saveCart() {
+        localStorage.setItem("zcart_cart", JSON.stringify(cart));
+    }
+
+
+    function addToCart(productId, sellerId, name, price) {
+        const existing = cart.find(item =>
+            String(item.productId) === String(productId)
+        );
+
+        if (existing) {
+            existing.quantity++;
+        } else {
+            cart.push({
+                productId: productId,
+                sellerId: sellerId || "",
+                name: name,
+                price: Number(price),
+                quantity: 1
+            });
+        }
+
+        updateCart();
+        saveCart();
+
+        const toast = document.getElementById("cartToast");
+        const toastName = document.getElementById("cartToastName");
+
+        toastName.textContent = name;
+        toast.style.display = "block";
+
+        requestAnimationFrame(() => {
+            toast.style.opacity = "1";
+            toast.style.transform = "translate(-50%,0)";
+        });
+
+        clearTimeout(window.cartToastTimer);
+        window.cartToastTimer = setTimeout(() => {
+            toast.style.opacity = "0";
+            toast.style.transform = "translate(-50%,20px)";
+
+            setTimeout(() => {
+                toast.style.display = "none";
+            }, 250);
+        }, 2500);
+    }
+
+    function updateCart() {
+        const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+        document.getElementById("cartCount").innerText = count;
+
+        const container = document.getElementById("cartItems");
+        const totalElement = document.getElementById("cartTotal");
+
+        if (cart.length === 0) {
+            container.innerHTML = `
+                <div style="background:#fff;border-radius:16px;padding:42px 20px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.06);">
+                    <div style="font-size:58px;margin-bottom:12px;">🛒</div>
+                    <div style="font-size:20px;font-weight:800;color:#222;">Your cart is empty</div>
+                    <div style="font-size:13px;color:#777;margin-top:7px;">Add products you love and they will appear here.</div>
+                    <button onclick="closeCart()" style="margin-top:20px;border:none;border-radius:9px;background:#2874f0;color:#fff;padding:12px 24px;font-size:14px;font-weight:700;">Continue Shopping</button>
+                </div>
+            `;
+            totalElement.innerText = "Total: ₹0";
+            return;
+        }
+
+        let total = 0;
+
+        container.innerHTML = cart.map((item, index) => {
+            const itemTotal = item.price * item.quantity;
+            total += itemTotal;
+
+            const product = (window.zcartProducts || []).find(p =>
+                String(p._id || p.id) === String(item.productId)
+            );
+
+            const image = product && product.image ? product.image : "";
+
+            return `
+                <div style="
+                    background:#fff;
+                    border-radius:14px;
+                    padding:12px;
+                    margin-bottom:10px;
+                    box-shadow:0 2px 10px rgba(0,0,0,.07);
+                    border:1px solid #f0f0f0;
+                ">
+                    <div style="display:flex;gap:12px;align-items:flex-start;">
+
+                        <div style="
+                            width:82px;
+                            height:82px;
+                            border-radius:10px;
+                            background:#f5f6f8;
+                            overflow:hidden;
+                            flex-shrink:0;
+                            display:flex;
+                            align-items:center;
+                            justify-content:center;
+                        ">
+                            ${
+                                image
+                                ? `<img src="${image}" style="width:100%;height:100%;object-fit:cover;">`
+                                : `<span style="font-size:35px;">🛍️</span>`
+                            }
+                        </div>
+
+                        <div style="flex:1;min-width:0;">
+                            <div style="
+                                font-size:15px;
+                                font-weight:700;
+                                color:#222;
+                                line-height:1.35;
+                                margin-bottom:5px;
+                            ">
+                                ${item.name}
+                            </div>
+
+                            <div style="
+                                font-size:17px;
+                                font-weight:800;
+                                color:#111;
+                            ">
+                                ₹${Number(item.price).toLocaleString("en-IN")}
+                            </div>
+
+                            <div style="
+                                font-size:12px;
+                                color:#777;
+                                margin-top:3px;
+                            ">
+                                Subtotal: ₹${itemTotal.toLocaleString("en-IN")}
+                            </div>
+                        </div>
+
+                        <button onclick="removeFromCart(${index})" style="
+                            border:none;
+                            background:#f5f5f5;
+                            color:#777;
+                            width:30px;
+                            height:30px;
+                            border-radius:50%;
+                            font-size:17px;
+                            cursor:pointer;
+                        ">×</button>
+                    </div>
+
+                    <div style="
+                        display:flex;
+                        align-items:center;
+                        justify-content:space-between;
+                        margin-top:12px;
+                        padding-top:10px;
+                        border-top:1px solid #f0f0f0;
+                    ">
+                        <span style="font-size:12px;color:#777;">Quantity</span>
+
+                        <div style="
+                            display:flex;
+                            align-items:center;
+                            border:1px solid #ddd;
+                            border-radius:8px;
+                            overflow:hidden;
+                        ">
+                            <button onclick="changeQuantity(${index}, -1)" style="
+                                width:34px;
+                                height:32px;
+                                border:none;
+                                background:#f7f7f7;
+                                font-size:19px;
+                            ">−</button>
+
+                            <span style="
+                                width:36px;
+                                text-align:center;
+                                font-size:14px;
+                                font-weight:700;
+                                line-height:32px;
+                            ">${item.quantity}</span>
+
+                            <button onclick="changeQuantity(${index}, 1)" style="
+                                width:34px;
+                                height:32px;
+                                border:none;
+                                background:#f7f7f7;
+                                font-size:19px;
+                            ">+</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join("");
+
+        totalElement.innerText =
+            "Total: ₹" + total.toLocaleString("en-IN");
+    }
+
+    function changeQuantity(index, amount) {
+        cart[index].quantity += amount;
+
+        if (cart[index].quantity <= 0) {
+            cart.splice(index, 1);
+        }
+
+        updateCart();
+        saveCart();
+    }
+
+    function removeFromCart(index) {
+        cart.splice(index, 1);
+        updateCart();
+        saveCart();
+    }
+
+    function showCart() {
+        zcartNavigate("cart");
+        updateCart();
+        saveCart();
+        document.getElementById("cartModal").style.display = "block";
+    }
+
+    function closeCart() {
+        document.getElementById("cartModal").style.display = "none";
+
+        if (zcartNavigation.current === "cart" &&
+            zcartNavigation.stack.length > 1) {
+            history.back();
+        }
+    }
+function searchProducts() {
+    const searchText = document.getElementById("searchInput").value.toLowerCase().trim();
+    const products = document.querySelectorAll(".product");
+    let found = 0;
+
+    products.forEach(product => {
+        const name = product.querySelector(".product-name");
+        if (!name) return;
+        const match = name.innerText.toLowerCase().includes(searchText);
+        product.style.display = match ? "" : "none";
+        if (match) found++;
+    });
+
+    let box = document.getElementById("searchResults");
+    if (box) box.innerText = searchText ? (found ? "Search Results for: " + searchText + " (" + found + " found)" : "No products found for: " + searchText) : "";
+}
+
+function filterCategory(category) {
+    const products = document.querySelectorAll(".product");
+    products.forEach(product => {
+        const c = product.getAttribute("data-category");
+        product.style.display = (category === "all" || c === category) ? "" : "none";
+    });
+    document.getElementById("searchInput").value = "";
+}
+
+
+function buyNow(id) {
+    const product = (window.zcartProducts || []).find(p =>
+        String(p.id || p._id) === String(id)
+    );
+
+    if (!product) {
+        alert("Product not found!");
+        return;
+    }
+
+    cart = [{
+        productId: product.id || product._id || "",
+        sellerId: product.sellerId || "",
+        name: product.name || "",
+        price: Number(product.price) || 0,
+        quantity: 1
+    }];
+
+    saveCart();
+    updateCart();
+    openCheckout();
+}
+
+function openCheckout() {
+    if (!cart || cart.length === 0) {
+        alert("Your cart is empty!");
+        return;
+    }
+
+    zcartNavigate("checkout");
+
+    const summary = document.getElementById("checkoutSummary");
+
+    summary.innerHTML = `
+        <div style="padding:10px;background:#f5f5f5;border-radius:8px;margin-bottom:12px;">
+            <b>Order Summary</b>
+            ${cart.map(item => `
+                <div style="margin-top:8px;">
+                    ${item.name} × ${item.quantity}
+                    — ₹${(Number(item.price) * item.quantity).toLocaleString("en-IN")}
+                </div>
+            `).join("")}
+            <hr>
+            <b>Total: ₹${cart.reduce((sum, item) =>
+                sum + Number(item.price) * item.quantity, 0
+            ).toLocaleString("en-IN")}</b>
+        </div>
+    `;
+
+    document.getElementById("checkoutModal").style.display = "block";
+}
+
+function closeCheckout() {
+    document.getElementById("checkoutModal").style.display = "none";
+
+    if (zcartNavigation.current === "checkout" &&
+        zcartNavigation.stack.length > 1) {
+        history.back();
+    }
+}
+
+async function placeOrder() {
+    if (!window.currentCustomer) {
+        alert("Please login as a customer before placing an order.");
+        showCustomerLogin();
+        return;
+    }
+
+    if (!cart || cart.length === 0) {
+        alert("Your cart is empty!");
+        return;
+    }
+
+    const name = document.getElementById("checkoutName").value.trim();
+    const phone = document.getElementById("checkoutPhone").value.trim();
+    const address = document.getElementById("checkoutAddress").value.trim();
+    const payment = document.getElementById("checkoutPayment").value;
+
+    if (!name || !phone || !address || !payment) {
+        alert("Please fill all checkout details.");
+        return;
+    }
+
+    try {
+        const response = await fetch("/api/orders", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                items: cart.map(item => ({
+                    productId: item.productId || "",
+                    sellerId: item.sellerId || "",
+                    name: item.name,
+                    price: Number(item.price),
+                    quantity: Number(item.quantity)
+                })),
+                name: name,
+                phone: phone,
+                address: address,
+                payment: payment,
+                customerId: window.currentCustomer ? window.currentCustomer.id : ""
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.message || "Order failed");
+        }
+
+        alert("Order placed successfully! 🎉\nOrder ID: " + data.order.id);
+
+        cart = [];
+        saveCart();
+        updateCart();
+        closeCheckout();
+        closeCart();
+        closeProductDetails();
+
+    } catch (error) {
+        console.error(error);
+        alert("Unable to place order. Please try again.");
+    }
+}
+
+function closeProductDetails() {
+    document.getElementById("productModal").style.display = "none";
+}
+
+function showProductDetails(id) {
+    zcartNavigate("productDetails");
+    const details = document.getElementById("productDetails");
+    const modal = document.getElementById("productModal");
+
+    modal.style.display = "block";
+
+    const products = window.zcartProducts || [];
+
+    const product = products.find(p =>
+        String(p._id || p.id) === String(id) ||
+        String(p.name) === String(id)
+    );
+
+    if (!product) {
+        details.innerHTML =
+            "<h2>Product Details</h2><p>Product not found.</p>";
+        return;
+    }
+
+    const safeName = String(product.name || "Product")
+        .replace(/'/g, "\\'");
+
+    const price = Number(product.price) || 0;
+    const rating = Number(product.rating) || 0;
+    const reviews = Number(product.reviews) || 0;
+    const stock = Number(product.stock) || 0;
+
+    details.innerHTML = `
+        <div style="
+            background:#fff;
+            border-radius:16px;
+            overflow:hidden;
+            box-shadow:0 2px 12px rgba(0,0,0,.07);
+        ">
+
+            <div style="
+                background:#fff;
+                padding:18px;
+                text-align:center;
+                border-bottom:1px solid #eee;
+            ">
+                ${
+                    product.image
+                    ? `<img src="${product.image}"
+                            style="
+                                width:100%;
+                                max-width:360px;
+                                height:300px;
+                                object-fit:contain;
+                                border-radius:12px;
+                                background:#f7f7f7;
+                            ">`
+                    : `<div style="
+                            height:300px;
+                            display:flex;
+                            align-items:center;
+                            justify-content:center;
+                            background:#f5f6f8;
+                            border-radius:12px;
+                            font-size:70px;
+                        ">🛍️</div>`
+                }
+            </div>
+
+            <div style="padding:18px;">
+
+                <div style="
+                    font-size:20px;
+                    font-weight:800;
+                    color:#222;
+                    line-height:1.4;
+                ">
+                    ${product.name || "Product"}
+                </div>
+
+                <div style="
+                    display:flex;
+                    align-items:center;
+                    gap:8px;
+                    margin-top:10px;
+                    flex-wrap:wrap;
+                ">
+                    <span style="
+                        background:#388e3c;
+                        color:#fff;
+                        padding:5px 8px;
+                        border-radius:5px;
+                        font-size:13px;
+                        font-weight:700;
+                    ">
+                        ★ ${rating.toFixed(1)}
+                    </span>
+
+                    <span style="
+                        color:#777;
+                        font-size:13px;
+                    ">
+                        ${reviews} Reviews
+                    </span>
+                </div>
+
+                <div style="
+                    margin-top:16px;
+                    font-size:28px;
+                    font-weight:900;
+                    color:#111;
+                ">
+                    ₹${price.toLocaleString("en-IN")}
+                </div>
+
+                <div style="
+                    margin-top:8px;
+                    display:flex;
+                    gap:8px;
+                    flex-wrap:wrap;
+                ">
+                    <span style="
+                        background:#e8f5e9;
+                        color:#2e7d32;
+                        padding:6px 10px;
+                        border-radius:6px;
+                        font-size:13px;
+                        font-weight:700;
+                    ">
+                        ${stock > 0 ? "✓ In Stock" : "Out of Stock"}
+                    </span>
+
+                    <span style="
+                        background:#f1f3f6;
+                        color:#555;
+                        padding:6px 10px;
+                        border-radius:6px;
+                        font-size:13px;
+                    ">
+                        ${product.category || "General"}
+                    </span>
+                </div>
+
+                <div style="
+                    margin-top:18px;
+                    padding:14px;
+                    background:#f8f9fb;
+                    border-radius:10px;
+                    font-size:13px;
+                    color:#555;
+                    line-height:1.6;
+                ">
+                    🚚 <b>Delivery available</b><br>
+                    📦 Product stock: ${stock}
+                </div>
+
+                <div style="
+                    display:flex;
+                    gap:10px;
+                    margin-top:18px;
+                ">
+                    <button
+                        onclick="addToCart('${product.id}', '${product.sellerId || ""}', '${safeName}', ${price})"
+                        style="
+                            flex:1;
+                            border:none;
+                            border-radius:9px;
+                            padding:14px 10px;
+                            background:#ff9f00;
+                            color:#fff;
+                            font-size:15px;
+                            font-weight:800;
+                            cursor:pointer;
+                        ">
+                        🛒 Add to Cart
+                    </button>
+
+                    <button
+                        onclick="buyNow('${product.id}')"
+                        style="
+                            flex:1;
+                            border:none;
+                            border-radius:9px;
+                            padding:14px 10px;
+                            background:#2874f0;
+                            color:#fff;
+                            font-size:15px;
+                            font-weight:800;
+                            cursor:pointer;
+                        ">
+                        ⚡ Buy Now
+                    </button>
+                </div>
+
+                <div style="
+                    margin-top:14px;
+                    background:#fff;
+                    border-radius:12px;
+                    padding:16px;
+                    border:1px solid #eee;
+                ">
+                    <div style="
+                        font-size:17px;
+                        font-weight:800;
+                        color:#222;
+                        padding-bottom:10px;
+                        border-bottom:1px solid #eee;
+                    ">
+                        📝 Description
+                    </div>
+
+                    <div style="
+                        margin-top:12px;
+                        font-size:14px;
+                        color:#555;
+                        line-height:1.7;
+                    ">
+                        ${product.description || "No description available for this product."}
+                    </div>
+                </div>
+
+                <div style="
+                    margin-top:12px;
+                    background:#fff;
+                    border-radius:12px;
+                    padding:16px;
+                    border:1px solid #eee;
+                ">
+                    <div style="
+                        font-size:17px;
+                        font-weight:800;
+                        color:#222;
+                        padding-bottom:10px;
+                        border-bottom:1px solid #eee;
+                    ">
+                        ⭐ Ratings & Reviews
+                    </div>
+
+                    <div style="
+                        display:flex;
+                        align-items:center;
+                        gap:18px;
+                        margin-top:14px;
+                        padding:14px;
+                        background:#f8f9fb;
+                        border-radius:10px;
+                    ">
+                        <div style="
+                            text-align:center;
+                            min-width:85px;
+                        ">
+                            <div style="
+                                font-size:28px;
+                                font-weight:900;
+                                color:#222;
+                            ">
+                                ${rating.toFixed(1)}
+                            </div>
+
+                            <div style="
+                                color:#f9a825;
+                                font-size:18px;
+                                letter-spacing:1px;
+                                margin-top:2px;
+                            ">
+                                ${"★".repeat(Math.max(0, Math.min(5, Math.round(rating))))}
+                            </div>
+
+                            <div style="
+                                font-size:12px;
+                                color:#777;
+                                margin-top:4px;
+                            ">
+                                ${reviews} reviews
+                            </div>
+                        </div>
+
+                        <div style="
+                            flex:1;
+                            font-size:13px;
+                            color:#666;
+                            line-height:1.6;
+                        ">
+                            Customer ratings and reviews for this product will appear here.
+                        </div>
+                    </div>
+
+                    <div style="
+                        margin-top:12px;
+                        padding:13px;
+                        border:1px dashed #ddd;
+                        border-radius:9px;
+                        text-align:center;
+                        color:#777;
+                        font-size:13px;
+                    ">
+                        📝 Detailed customer reviews coming soon
+                    </div>
+                </div>
+
+                <div style="
+                    margin-top:12px;
+                    background:#fff;
+                    border-radius:12px;
+                    padding:16px;
+                    border:1px solid #eee;
+                ">
+                    <div style="
+                        font-size:17px;
+                        font-weight:800;
+                        color:#222;
+                        padding-bottom:10px;
+                        border-bottom:1px solid #eee;
+                    ">
+                        📋 Specifications
+                    </div>
+
+                    <div style="margin-top:10px;">
+                        <div style="
+                            display:flex;
+                            justify-content:space-between;
+                            gap:15px;
+                            padding:10px 0;
+                            border-bottom:1px solid #f1f1f1;
+                            font-size:14px;
+                        ">
+                            <span style="color:#777;">Category</span>
+                            <b style="color:#222;text-align:right;">
+                                ${product.category || "General"}
+                            </b>
+                        </div>
+
+                        <div style="
+                            display:flex;
+                            justify-content:space-between;
+                            gap:15px;
+                            padding:10px 0;
+                            font-size:14px;
+                        ">
+                            <span style="color:#777;">Available Stock</span>
+                            <b style="color:#222;text-align:right;">
+                                ${stock}
+                            </b>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    `;
+}
+async function showMyOrders() {
+  zcartNavigate("orders");
+  const modal = document.getElementById("ordersModal");
+  const list = document.getElementById("ordersList");
+
+  modal.style.display = "block";
+  list.innerHTML = "Loading orders...";
+
+  try {
+    const response = await fetch("/api/orders?customerId=" + encodeURIComponent(window.currentCustomer ? window.currentCustomer.id : ""));
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(data.message || "Failed to load orders");
+    }
+
+    if (!data.orders || data.orders.length === 0) {
+      list.innerHTML = "<p>No orders found.</p>";
+      return;
+    }
+
+    list.innerHTML = data.orders.slice().reverse().map(order => `
+      <div style="border:1px solid #ddd; padding:15px; margin:10px 0; border-radius:10px;">
+        <h3>Order ID: ${order.id}</h3>
+        <p><b>Status:</b> ${order.status}</p>
+        <p><b>Payment:</b> ${order.payment}</p>
+        <p><b>Date:</b> ${new Date(order.createdAt).toLocaleString("en-IN")}</p>
+        ${order.items ? order.items.map(item => `
+          <div style="padding:8px 0; border-top:1px solid #eee;">
+            ${item.name} × ${item.quantity} — ₹${(Number(item.price) * Number(item.quantity)).toLocaleString("en-IN")}
+          </div>
+        `).join("") : `
+          <div style="padding:8px 0; border-top:1px solid #eee;">
+            ${order.product} × ${order.quantity} — ₹${Number(order.price || 0).toLocaleString("en-IN")}
+          </div>
+        `}
+        <h3>Total: ₹${Number(order.total || (order.price || 0) * (order.quantity || 1)).toLocaleString("en-IN")}</h3>
+      </div>
+    `).join("");
+
+  } catch (error) {
+    console.error(error);
+    list.innerHTML = "<p>Unable to load orders. Please try again.</p>";
+  }
+}
+
+function closeMyOrders() {
+  document.getElementById("ordersModal").style.display = "none";
+
+  if (zcartNavigation.current === "orders" &&
+      zcartNavigation.stack.length > 1) {
+    history.back();
+  }
+}
+
+
+function showCustomerLogin() {
+  if (window.currentCustomer) {
+    showCustomerDashboard();
+    return;
+  }
+
+  zcartNavigate("customerLogin");
+  document.getElementById("customerLoginModal").style.display = "block";
+  document.getElementById("customerLoginMessage").textContent = "";
+}
+
+function showCustomerDashboard() {
+  const customer = window.currentCustomer;
+
+  if (!customer) {
+    showCustomerLogin();
+    return;
+  }
+
+  zcartNavigate("customerDashboard");
+
+  document.getElementById("customerDashboardName").textContent =
+    customer.name || "Customer";
+
+  document.getElementById("customerDashboardEmail").textContent =
+    "Email: " + (customer.email || "");
+
+  document.getElementById("customerDashboardPhone").textContent =
+    "Phone: " + (customer.phone || "");
+
+  document.getElementById("customerDashboardModal").style.display = "block";
+}
+
+function closeCustomerDashboard() {
+  document.getElementById("customerDashboardModal").style.display = "none";
+
+  if (zcartNavigation.current === "customerDashboard" &&
+      zcartNavigation.stack.length > 1) {
+    history.back();
+  }
+}
+
+function showCustomerProfile() {
+  const customer = window.currentCustomer;
+
+  if (!customer) {
+    showCustomerLogin();
+    return;
+  }
+
+  zcartNavigate("customerProfile");
+
+  document.getElementById("customerProfileName").value =
+    customer.name || "";
+
+  document.getElementById("customerProfileEmail").value =
+    customer.email || "";
+
+  document.getElementById("customerProfilePhone").value =
+    customer.phone || "";
+
+  document.getElementById("customerProfileMessage").textContent = "";
+
+  document.getElementById("customerProfileModal").style.display = "block";
+}
+
+function closeCustomerProfile() {
+  document.getElementById("customerProfileModal").style.display = "none";
+
+  if (zcartNavigation.current === "customerProfile" &&
+      zcartNavigation.stack.length > 1) {
+    history.back();
+  }
+}
+
+async function saveCustomerProfile() {
+  const customer = window.currentCustomer;
+
+  if (!customer) {
+    showCustomerLogin();
+    return;
+  }
+
+  const name = document.getElementById("customerProfileName").value.trim();
+  const phone = document.getElementById("customerProfilePhone").value.trim();
+  const message = document.getElementById("customerProfileMessage");
+
+  if (!name || !phone) {
+    message.textContent = "Name aur phone required hai.";
+    return;
+  }
+
+  message.textContent = "Saving...";
+
+  try {
+    const response = await fetch("/api/customer/profile", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        customerId: customer.id,
+        name: name,
+        phone: phone
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      message.textContent = data.message || "Profile update failed";
+      return;
+    }
+
+    window.currentCustomer = data.customer;
+
+    localStorage.setItem(
+      "zcart_customer",
+      JSON.stringify(data.customer)
+    );
+
+    message.textContent = "Profile updated successfully!";
+
+    document.getElementById("customerDashboardName").textContent =
+      data.customer.name;
+
+    document.getElementById("customerDashboardEmail").textContent =
+      "Email: " + data.customer.email;
+
+    document.getElementById("customerDashboardPhone").textContent =
+      "Phone: " + data.customer.phone;
+
+  } catch (error) {
+    console.error(error);
+    message.textContent = "Server se connection nahi ho raha.";
+  }
+}
+
+function customerLogout() {
+  window.currentCustomer = null;
+  localStorage.removeItem("zcart_customer");
+  closeCustomerDashboard();
+  alert("You have been logged out.");
+}
+
+function closeCustomerLogin() {
+  document.getElementById("customerLoginModal").style.display = "none";
+}
+
+function showCustomerSignup() {
+  closeCustomerLogin();
+  document.getElementById("customerSignupModal").style.display = "block";
+  document.getElementById("customerSignupMessage").textContent = "";
+}
+
+function closeCustomerSignup() {
+  document.getElementById("customerSignupModal").style.display = "none";
+}
+
+async function customerSignup() {
+  const name = document.getElementById("customerSignupName").value.trim();
+  const email = document.getElementById("customerSignupEmail").value.trim();
+  const phone = document.getElementById("customerSignupPhone").value.trim();
+  const password = document.getElementById("customerSignupPassword").value;
+  const confirmPassword = document.getElementById("customerSignupConfirmPassword").value;
+  const message = document.getElementById("customerSignupMessage");
+
+  if (!name || !email || !phone || !password || !confirmPassword) {
+    message.textContent = "Sabhi fields bharna zaroori hai.";
+    return;
+  }
+
+  if (password !== confirmPassword) {
+    message.textContent = "Password match nahi kar raha.";
+    return;
+  }
+
+  message.textContent = "Creating account...";
+
+  try {
+    const response = await fetch("/api/customer/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        name,
+        email,
+        phone,
+        password
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      message.textContent = data.message || "Registration failed";
+      return;
+    }
+
+    alert("Customer account successfully created!");
+
+    closeCustomerSignup();
+    showCustomerLogin();
+
+    document.getElementById("customerEmail").value = email;
+    document.getElementById("customerPassword").value = "";
+
+  } catch (error) {
+    console.error(error);
+    message.textContent = "Server se connection nahi ho raha.";
+  }
+}
+
+async function customerLogin() {
+  const email = document.getElementById("customerEmail").value.trim();
+  const password = document.getElementById("customerPassword").value;
+  const message = document.getElementById("customerLoginMessage");
+
+  if (!email || !password) {
+    message.textContent = "Email aur password required hai.";
+    return;
+  }
+
+  message.textContent = "Logging in...";
+
+  try {
+    const response = await fetch("/api/customer/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        email,
+        password
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      message.textContent = data.message || "Login failed";
+      return;
+    }
+
+    window.currentCustomer = data.customer;
+    localStorage.setItem("zcart_customer", JSON.stringify(data.customer));
+
+    closeCustomerLogin();
+
+    alert("Customer login successful!");
+
+  } catch (error) {
+    console.error(error);
+    message.textContent = "Server se connection nahi ho raha.";
+  }
+}
+
+function showSellerLogin() {
+  document.getElementById("sellerLoginModal").style.display = "block";
+  document.getElementById("sellerLoginMessage").textContent = "";
+}
+
+function closeSellerLogin() {
+  document.getElementById("sellerLoginModal").style.display = "none";
+}
+
+async function sellerLogin() {
+  const email = document.getElementById("sellerEmail").value.trim();
+  const password = document.getElementById("sellerPassword").value;
+
+  const message = document.getElementById("sellerLoginMessage");
+
+  if (!email || !password) {
+    message.textContent = "Email aur password required hai.";
+    return;
+  }
+
+  message.textContent = "Logging in...";
+
+  try {
+    const response = await fetch("/api/seller/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      message.textContent = data.message || "Login failed";
+      return;
+    }
+
+    window.currentSeller = data.seller;
+
+    closeSellerLogin();
+    showSellerDashboard();
+
+  } catch (error) {
+    console.error(error);
+    message.textContent = "Server se connection nahi ho raha.";
+  }
+}
+
+function showSellerDashboard() {
+  const seller = window.currentSeller;
+
+  if (!seller) {
+    showSellerLogin();
+    return;
+  }
+
+  document.getElementById("sellerInfo").innerHTML = `
+    <p><b>Name:</b> ${seller.name || ""}</p>
+    <p><b>Email:</b> ${seller.email || ""}</p>
+    <p><b>Phone:</b> ${seller.phone || ""}</p>
+    <p><b>Status:</b> ${seller.status || ""}</p>
+  `;
+
+  document.getElementById("sellerDashboardModal").style.display = "block";
+
+  loadSellerProducts();
+  loadSellerOrders();
+}
+
+
+
+function showSellerAddProduct() {
+  const seller = window.currentSeller;
+
+  if (!seller) {
+    showSellerLogin();
+    return;
+  }
+
+  document.getElementById("addProductName").value = "";
+  document.getElementById("addProductPrice").value = "";
+  document.getElementById("addProductCategory").value = "";
+  document.getElementById("addProductDescription").value = "";
+  document.getElementById("addProductImage").value = "";
+  document.getElementById("addProductStock").value = "";
+  document.getElementById("sellerAddProductMessage").textContent = "";
+
+  document.getElementById("sellerAddProductModal").style.display = "block";
+}
+
+function closeSellerAddProduct() {
+  document.getElementById("sellerAddProductModal").style.display = "none";
+}
+
+async function saveSellerNewProduct() {
+  const seller = window.currentSeller;
+
+  if (!seller) {
+    showSellerLogin();
+    return;
+  }
+
+  const message = document.getElementById("sellerAddProductMessage");
+
+  const name = document.getElementById("addProductName").value.trim();
+  const price = document.getElementById("addProductPrice").value;
+  const category = document.getElementById("addProductCategory").value.trim();
+  const description = document.getElementById("addProductDescription").value.trim();
+  const image = document.getElementById("addProductImage").value.trim();
+  const stock = document.getElementById("addProductStock").value;
+
+  if (!name || price === "") {
+    message.textContent = "Product name aur price required hai.";
+    return;
+  }
+
+  message.textContent = "Adding product...";
+
+  try {
+    const response = await fetch("/api/products", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        sellerId: seller.id,
+        name,
+        price: Number(price),
+        category,
+        description,
+        image,
+        stock: Number(stock || 0)
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(data.message || "Product add failed");
+    }
+
+    alert("Product added successfully!");
+
+    closeSellerAddProduct();
+    loadSellerProducts();
+
+  } catch (error) {
+    console.error(error);
+    message.textContent = error.message || "Unable to add product.";
+  }
+}
+
+let editingSellerProductId = null;
+
+function editSellerProduct(productId) {
+  const seller = window.currentSeller;
+
+  if (!seller) {
+    showSellerLogin();
+    return;
+  }
+
+  const product = (window.sellerProducts || []).find(
+    p => String(p.id) === String(productId)
+  );
+
+  if (!product) {
+    alert("Product not found!");
+    return;
+  }
+
+  editingSellerProductId = productId;
+
+  document.getElementById("editProductName").value = product.name || "";
+  document.getElementById("editProductPrice").value = product.price ?? "";
+  document.getElementById("editProductCategory").value = product.category || "";
+  document.getElementById("editProductDescription").value = product.description || "";
+  document.getElementById("editProductImage").value = product.image || "";
+  document.getElementById("editProductStock").value = product.stock ?? 0;
+
+  document.getElementById("sellerEditProductMessage").textContent = "";
+  document.getElementById("sellerEditProductModal").style.display = "block";
+}
+
+function closeSellerEditProduct() {
+  document.getElementById("sellerEditProductModal").style.display = "none";
+  editingSellerProductId = null;
+}
+
+async function saveSellerProductEdit() {
+  const seller = window.currentSeller;
+
+  if (!seller || !editingSellerProductId) return;
+
+  const message = document.getElementById("sellerEditProductMessage");
+
+  const name = document.getElementById("editProductName").value.trim();
+  const price = document.getElementById("editProductPrice").value;
+  const category = document.getElementById("editProductCategory").value.trim();
+  const description = document.getElementById("editProductDescription").value.trim();
+  const image = document.getElementById("editProductImage").value.trim();
+  const stock = document.getElementById("editProductStock").value;
+
+  if (!name || price === "") {
+    message.textContent = "Product name aur price required hai.";
+    return;
+  }
+
+  message.textContent = "Saving...";
+
+  try {
+    const response = await fetch(
+      "/api/products/" + encodeURIComponent(editingSellerProductId),
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          sellerId: seller.id,
+          name,
+          price: Number(price),
+          category,
+          description,
+          image,
+          stock: Number(stock || 0)
+        })
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(data.message || "Product update failed");
+    }
+
+    alert("Product updated successfully!");
+
+    closeSellerEditProduct();
+    loadSellerProducts();
+
+  } catch (error) {
+    console.error(error);
+    message.textContent = error.message || "Unable to update product.";
+  }
+}
+
+async function deleteSellerProduct(productId) {
+  const seller = window.currentSeller;
+
+  if (!seller) {
+    showSellerLogin();
+    return;
+  }
+
+  if (!confirm("Kya aap is product ko delete karna chahte hain?")) {
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      "/api/products/" + encodeURIComponent(productId),
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          sellerId: seller.id
+        })
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(data.message || "Product delete failed");
+    }
+
+    alert("Product deleted successfully!");
+
+    loadSellerProducts();
+
+  } catch (error) {
+    console.error(error);
+    alert(error.message || "Unable to delete product.");
+  }
+}
+
+async function loadSellerProducts() {
+  const box = document.getElementById("sellerProducts");
+  const seller = window.currentSeller;
+
+  if (!seller) return;
+
+  box.innerHTML = "Loading products...";
+
+  try {
+    const response = await fetch(
+      "/api/seller/" + encodeURIComponent(seller.id) + "/products"
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(data.message || "Failed to load products");
+    }
+
+    window.sellerProducts = data.products || [];
+
+    if (!data.products || data.products.length === 0) {
+      box.innerHTML = "<p>No products found.</p>";
+      return;
+    }
+
+    box.innerHTML = data.products.map(product => `
+      <div style="border:1px solid #ddd; padding:12px; margin:10px 0; border-radius:10px;">
+        <b>${product.name || ""}</b>
+        <p>Price: ₹${Number(product.price || 0).toLocaleString("en-IN")}</p>
+        <p>Stock: ${product.stock ?? 0}</p>
+
+        <button onclick="editSellerProduct('${product.id}')"
+          style="padding:8px 12px; margin-right:5px;">
+          ✏️ Edit
+        </button>
+
+        <button onclick="deleteSellerProduct('${product.id}')"
+          style="padding:8px 12px;">
+          🗑️ Delete
+        </button>
+      </div>
+    `).join("");
+
+  } catch (error) {
+    console.error(error);
+    box.innerHTML = "<p>Unable to load products.</p>";
+  }
+}
+
+async function loadSellerOrders() {
+  const box = document.getElementById("sellerOrders");
+  const seller = window.currentSeller;
+
+  if (!seller) return;
+
+  box.innerHTML = "Loading orders...";
+
+  try {
+    const response = await fetch(
+      "/api/seller/" + encodeURIComponent(seller.id) + "/orders"
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(data.message || "Failed to load orders");
+    }
+
+    if (!data.orders || data.orders.length === 0) {
+      box.innerHTML = "<p>No orders found.</p>";
+      return;
+    }
+
+    box.innerHTML = data.orders.slice().reverse().map(order => `
+      <div style="border:1px solid #ddd; padding:15px; margin:10px 0; border-radius:10px;">
+        <h3>Order ID: ${order.id}</h3>
+        <p><b>Customer:</b> ${order.name || ""}</p>
+        <p><b>Phone:</b> ${order.phone || ""}</p>
+        <p><b>Address:</b> ${order.address || ""}</p>
+        <p><b>Payment:</b> ${order.payment || ""}</p>
+
+        ${order.items.map(item => `
+          <div style="padding:8px 0; border-top:1px solid #eee;">
+            ${item.name} × ${item.quantity}
+            — ₹${(Number(item.price || 0) * Number(item.quantity || 1)).toLocaleString("en-IN")}
+          </div>
+        `).join("")}
+
+        <p><b>Status:</b> ${order.status || "Placed"}</p>
+
+        <select id="status-${order.id}" style="padding:8px;">
+          ${[
+            "Placed",
+            "Confirmed",
+            "Packed",
+            "Shipped",
+            "Out for Delivery",
+            "Delivered",
+            "Cancelled"
+          ].map(status => `
+            <option value="${status}" ${status === order.status ? "selected" : ""}>
+              ${status}
+            </option>
+          `).join("")}
+        </select>
+
+        <button onclick="updateSellerOrderStatus('${order.id}')"
+          style="padding:8px 12px; margin-left:5px;">
+          Update Status
+        </button>
+      </div>
+    `).join("");
+
+  } catch (error) {
+    console.error(error);
+    box.innerHTML = "<p>Unable to load orders.</p>";
+  }
+}
+
+async function updateSellerOrderStatus(orderId) {
+  const seller = window.currentSeller;
+  const select = document.getElementById("status-" + orderId);
+
+  if (!seller || !select) return;
+
+  const status = select.value;
+
+  try {
+    const response = await fetch(
+      "/api/seller/" +
+      encodeURIComponent(seller.id) +
+      "/orders/" +
+      encodeURIComponent(orderId) +
+      "/status",
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ status })
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(data.message || "Status update failed");
+    }
+
+    alert("Order status updated successfully!");
+    loadSellerOrders();
+
+  } catch (error) {
+    console.error(error);
+    alert(error.message || "Unable to update order status.");
+  }
+}
+
+
+function showSellerSignup() {
+  closeSellerLogin();
+  document.getElementById("sellerSignupModal").style.display = "block";
+  document.getElementById("sellerSignupMessage").textContent = "";
+}
+
+function closeSellerSignup() {
+  document.getElementById("sellerSignupModal").style.display = "none";
+}
+
+async function sellerSignup() {
+  const name = document.getElementById("signupName").value.trim();
+  const email = document.getElementById("signupEmail").value.trim();
+  const phone = document.getElementById("signupPhone").value.trim();
+  const password = document.getElementById("signupPassword").value;
+  const confirmPassword = document.getElementById("signupConfirmPassword").value;
+  const message = document.getElementById("sellerSignupMessage");
+
+  if (!name || !email || !phone || !password || !confirmPassword) {
+    message.textContent = "Sabhi fields bharna zaroori hai.";
+    return;
+  }
+
+  if (password !== confirmPassword) {
+    message.textContent = "Password match nahi kar raha.";
+    return;
+  }
+
+  message.textContent = "Creating account...";
+
+  try {
+    const response = await fetch("/api/seller/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        name,
+        email,
+        phone,
+        password
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      message.textContent = data.message || "Registration failed";
+      return;
+    }
+
+    alert("Seller account successfully created!");
+
+    closeSellerSignup();
+    showSellerLogin();
+
+    document.getElementById("sellerEmail").value = email;
+    document.getElementById("sellerPassword").value = "";
+
+  } catch (error) {
+    console.error(error);
+    message.textContent = "Server se connection nahi ho raha.";
+  }
+}
+
+function closeSellerDashboard() {
+  document.getElementById("sellerDashboardModal").style.display = "none";
+}
+</script>
+
+
+<div id="customerDashboardModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:10009;">
+  <div style="background:white; width:92%; max-width:500px; margin:8% auto; padding:20px; border-radius:12px;">
+    <h2>👤 My Account</h2>
+
+    <div style="background:#f5f5f5; padding:15px; border-radius:10px; margin-bottom:15px;">
+      <h3 id="customerDashboardName">Customer</h3>
+      <p id="customerDashboardEmail"></p>
+      <p id="customerDashboardPhone"></p>
+    </div>
+
+    <button onclick="showCustomerProfile(); closeCustomerDashboard();"
+      style="width:100%; padding:13px; margin:6px 0;">
+      👤 My Profile
+    </button>
+
+    <button onclick="showMyOrders(); closeCustomerDashboard();"
+      style="width:100%; padding:13px; margin:6px 0;">
+      📦 My Orders
+    </button>
+
+    <button onclick="showCart(); closeCustomerDashboard();"
+      style="width:100%; padding:13px; margin:6px 0;">
+      🛒 My Cart
+    </button>
+
+    <button onclick="alert('Wishlist coming soon!')"
+      style="width:100%; padding:13px; margin:6px 0;">
+      ❤️ Wishlist
+    </button>
+
+    <button onclick="alert('Saved Addresses coming soon!')"
+      style="width:100%; padding:13px; margin:6px 0;">
+      📍 Saved Addresses
+    </button>
+
+    <button onclick="customerLogout()"
+      style="width:100%; padding:13px; margin:6px 0;">
+      🚪 Logout
+    </button>
+
+    <button onclick="closeCustomerDashboard()"
+      style="width:100%; padding:13px; margin:6px 0;">
+      Close
+    </button>
+  </div>
+</div>
+
+<div id="customerProfileModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:10010;">
+  <div style="background:white; width:92%; max-width:500px; margin:8% auto; padding:20px; border-radius:12px;">
+    <h2>👤 My Profile</h2>
+
+    <label>Name</label>
+    <input id="customerProfileName" type="text"
+      style="width:100%; padding:12px; margin:8px 0 14px; box-sizing:border-box;">
+
+    <label>Email</label>
+    <input id="customerProfileEmail" type="email" readonly
+      style="width:100%; padding:12px; margin:8px 0 14px; box-sizing:border-box; background:#f3f3f3;">
+
+    <label>Phone</label>
+    <input id="customerProfilePhone" type="tel"
+      style="width:100%; padding:12px; margin:8px 0 14px; box-sizing:border-box;">
+
+    <button onclick="saveCustomerProfile()"
+      style="width:100%; padding:13px; margin:6px 0;">
+      💾 Save Profile
+    </button>
+
+    <button onclick="closeCustomerProfile()"
+      style="width:100%; padding:13px; margin:6px 0;">
+      Close
+    </button>
+
+    <p id="customerProfileMessage"></p>
+  </div>
+</div>
+
+<div id="customerLoginModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:10007;">
+  <div style="background:white; width:90%; max-width:420px; margin:10% auto; padding:20px; border-radius:12px;">
+    <h2>👤 Customer Login</h2>
+
+    <input id="customerEmail" type="email" placeholder="Email"
+      style="width:100%; padding:12px; margin:8px 0; box-sizing:border-box;">
+
+    <input id="customerPassword" type="password" placeholder="Password"
+      style="width:100%; padding:12px; margin:8px 0; box-sizing:border-box;">
+
+    <button onclick="customerLogin()"
+      style="width:100%; padding:12px; margin-top:10px;">
+      Login
+    </button>
+
+    <button onclick="showCustomerSignup()"
+      style="width:100%; padding:12px; margin-top:8px;">
+      📝 New Customer? Sign Up
+    </button>
+
+    <button onclick="closeCustomerLogin()"
+      style="width:100%; padding:12px; margin-top:8px;">
+      Close
+    </button>
+
+    <p id="customerLoginMessage"></p>
+  </div>
+</div>
+
+<div id="customerSignupModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:10008;">
+  <div style="background:white; width:90%; max-width:420px; margin:7% auto; padding:20px; border-radius:12px;">
+    <h2>📝 Customer Sign Up</h2>
+
+    <input id="customerSignupName" type="text" placeholder="Name"
+      style="width:100%; padding:12px; margin:8px 0; box-sizing:border-box;">
+
+    <input id="customerSignupEmail" type="email" placeholder="Email"
+      style="width:100%; padding:12px; margin:8px 0; box-sizing:border-box;">
+
+    <input id="customerSignupPhone" type="tel" placeholder="Phone"
+      style="width:100%; padding:12px; margin:8px 0; box-sizing:border-box;">
+
+    <input id="customerSignupPassword" type="password" placeholder="Password"
+      style="width:100%; padding:12px; margin:8px 0; box-sizing:border-box;">
+
+    <input id="customerSignupConfirmPassword" type="password" placeholder="Confirm Password"
+      style="width:100%; padding:12px; margin:8px 0; box-sizing:border-box;">
+
+    <button onclick="customerSignup()"
+      style="width:100%; padding:12px; margin-top:10px;">
+      Create Customer Account
+    </button>
+
+    <button onclick="closeCustomerSignup()"
+      style="width:100%; padding:12px; margin-top:8px;">
+      Close
+    </button>
+
+    <p id="customerSignupMessage"></p>
+  </div>
+</div>
+
+<div id="sellerLoginModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:10002;">
+  <div style="background:white; width:90%; max-width:420px; margin:10% auto; padding:20px; border-radius:12px;">
+    <h2>🧑‍💼 Seller Login</h2>
+
+    <input id="sellerEmail" type="email" placeholder="Seller Email"
+      style="width:100%; padding:12px; margin:8px 0; box-sizing:border-box;">
+
+    <input id="sellerPassword" type="password" placeholder="Password"
+      style="width:100%; padding:12px; margin:8px 0; box-sizing:border-box;">
+
+    <button onclick="sellerLogin()"
+      style="width:100%; padding:12px; margin-top:10px;">
+      Login
+    </button>
+
+    <button onclick="showSellerSignup()"
+      style="width:100%; padding:12px; margin-top:8px;">
+      📝 New Seller? Sign Up
+    </button>
+
+    <button onclick="closeSellerLogin()"
+      style="width:100%; padding:12px; margin-top:8px;">
+      Close
+    </button>
+
+    <p id="sellerLoginMessage"></p>
+  </div>
+</div>
+
+
+<div id="sellerSignupModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:10004;">
+  <div style="background:white; width:90%; max-width:420px; margin:7% auto; padding:20px; border-radius:12px;">
+    <h2>📝 Seller Sign Up</h2>
+
+    <input id="signupName" type="text" placeholder="Seller Name"
+      style="width:100%; padding:12px; margin:8px 0; box-sizing:border-box;">
+
+    <input id="signupEmail" type="email" placeholder="Email"
+      style="width:100%; padding:12px; margin:8px 0; box-sizing:border-box;">
+
+    <input id="signupPhone" type="tel" placeholder="Phone"
+      style="width:100%; padding:12px; margin:8px 0; box-sizing:border-box;">
+
+    <input id="signupPassword" type="password" placeholder="Password"
+      style="width:100%; padding:12px; margin:8px 0; box-sizing:border-box;">
+
+    <input id="signupConfirmPassword" type="password" placeholder="Confirm Password"
+      style="width:100%; padding:12px; margin:8px 0; box-sizing:border-box;">
+
+    <button onclick="sellerSignup()"
+      style="width:100%; padding:12px; margin-top:10px;">
+      Create Seller Account
+    </button>
+
+    <button onclick="closeSellerSignup()"
+      style="width:100%; padding:12px; margin-top:8px;">
+      Close
+    </button>
+
+    <p id="sellerSignupMessage"></p>
+  </div>
+</div>
+
+
+<div id="sellerAddProductModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:10006;">
+  <div style="background:white; width:90%; max-width:500px; margin:5% auto; padding:20px; border-radius:12px; max-height:90vh; overflow:auto;">
+    <h2>➕ Add Product</h2>
+
+    <input id="addProductName" type="text" placeholder="Product Name"
+      style="width:100%; padding:12px; margin:8px 0; box-sizing:border-box;">
+
+    <input id="addProductPrice" type="number" placeholder="Price"
+      style="width:100%; padding:12px; margin:8px 0; box-sizing:border-box;">
+
+    <input id="addProductCategory" type="text" placeholder="Category"
+      style="width:100%; padding:12px; margin:8px 0; box-sizing:border-box;">
+
+    <textarea id="addProductDescription" placeholder="Description"
+      style="width:100%; padding:12px; margin:8px 0; min-height:100px; box-sizing:border-box;"></textarea>
+
+    <input id="addProductImage" type="text" placeholder="Image URL"
+      style="width:100%; padding:12px; margin:8px 0; box-sizing:border-box;">
+
+    <input id="addProductStock" type="number" placeholder="Stock"
+      style="width:100%; padding:12px; margin:8px 0; box-sizing:border-box;">
+
+    <button onclick="saveSellerNewProduct()"
+      style="width:100%; padding:12px; margin-top:10px;">
+      💾 Add Product
+    </button>
+
+    <button onclick="closeSellerAddProduct()"
+      style="width:100%; padding:12px; margin-top:8px;">
+      Close
+    </button>
+
+    <p id="sellerAddProductMessage"></p>
+  </div>
+</div>
+
+<div id="sellerEditProductModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:10005;">
+  <div style="background:white; width:90%; max-width:500px; margin:5% auto; padding:20px; border-radius:12px; max-height:90vh; overflow:auto;">
+    <h2>✏️ Edit Product</h2>
+
+    <input id="editProductName" type="text" placeholder="Product Name"
+      style="width:100%; padding:12px; margin:8px 0;">
+
+    <input id="editProductPrice" type="number" placeholder="Price"
+      style="width:100%; padding:12px; margin:8px 0;">
+
+    <input id="editProductCategory" type="text" placeholder="Category"
+      style="width:100%; padding:12px; margin:8px 0;">
+
+    <textarea id="editProductDescription" placeholder="Description"
+      style="width:100%; padding:12px; margin:8px 0; min-height:100px;"></textarea>
+
+    <input id="editProductImage" type="text" placeholder="Image URL"
+      style="width:100%; padding:12px; margin:8px 0;">
+
+    <input id="editProductStock" type="number" placeholder="Stock"
+      style="width:100%; padding:12px; margin:8px 0;">
+
+    <button onclick="saveSellerProductEdit()"
+      style="width:100%; padding:12px; margin-top:10px;">
+      💾 Save Changes
+    </button>
+
+    <button onclick="closeSellerEditProduct()"
+      style="width:100%; padding:12px; margin-top:8px;">
+      Close
+    </button>
+
+    <p id="sellerEditProductMessage"></p>
+  </div>
+</div>
+
+<div id="sellerDashboardModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:10003;">
+  <div style="background:white; width:95%; max-width:900px; margin:3% auto; padding:20px; border-radius:12px; max-height:92vh; overflow:auto;">
+    <h2>🧑‍💼 Seller Dashboard</h2>
+    <div id="sellerInfo"></div>
+
+    <hr>
+
+    <h3>🛍️ My Products</h3>
+
+    <button onclick="showSellerAddProduct()"
+      style="padding:10px 15px; margin:10px 0;">
+      ➕ Add Product
+    </button>
+
+    <div id="sellerProducts">Loading products...</div>
+
+    <hr>
+
+    <h3>📦 My Orders</h3>
+    <div id="sellerOrders">Loading orders...</div>
+
+    <button onclick="closeSellerDashboard()"
+      style="margin-top:15px; padding:12px 25px;">
+      Close Dashboard
+    </button>
+  </div>
+</div>
+
+</body>
+</html>
+
+<script>
+const savedCustomer = localStorage.getItem("zcart_customer");
+
+if (savedCustomer) {
+    try {
+        window.currentCustomer = JSON.parse(savedCustomer);
+    } catch (error) {
+        localStorage.removeItem("zcart_customer");
+        window.currentCustomer = null;
+    }
+}
+</script>

@@ -1,0 +1,503 @@
+const express = require("express");
+const path = require("path");
+const { db, initDB } = require("./database");
+
+const app = express();
+const PORT = 3000;
+
+app.use(express.json());
+app.use(express.static(__dirname));
+
+// Home
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
+});
+
+// Backend status
+app.get("/api/status", (req, res) => {
+  res.json({
+    success: true,
+    message: "ZCart Backend is working!"
+  });
+});
+
+// Get all products
+app.get("/api/products", async (req, res) => {
+  await db.read();
+
+  res.json({
+    success: true,
+    products: db.data.products
+  });
+});
+
+// Add product
+app.post("/api/seller/login", async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({
+      success: false,
+      message: "Email and password are required"
+    });
+  }
+
+  await db.read();
+
+  const seller = db.data.users.find(
+    u => u.email === email && u.role === "seller"
+  );
+
+  if (!seller || seller.password !== password) {
+    return res.status(401).json({
+      success: false,
+      message: "Invalid seller email or password"
+    });
+  }
+
+  res.json({
+    success: true,
+    message: "Seller login successful",
+    seller: {
+      id: seller.id,
+      name: seller.name,
+      email: seller.email,
+      phone: seller.phone,
+      role: seller.role,
+      status: seller.status
+    }
+  });
+});
+
+app.post("/api/seller/register", async (req, res) => {
+  const { name, email, phone, password } = req.body;
+
+  if (!name || !email || !phone || !password) {
+    return res.status(400).json({
+      success: false,
+      message: "Name, email, phone and password are required"
+    });
+  }
+
+  await db.read();
+
+  const exists = db.data.users.find(
+    u => u.email === email || u.phone === phone
+  );
+
+  if (exists) {
+    return res.status(409).json({
+      success: false,
+      message: "Seller already registered with this email or phone"
+    });
+  }
+
+  const seller = {
+    id: "S" + Date.now(),
+    name,
+    email,
+    phone,
+    password,
+    role: "seller",
+    status: "active",
+    createdAt: new Date().toISOString()
+  };
+
+  db.data.users.push(seller);
+  await db.write();
+
+  res.status(201).json({
+    success: true,
+    message: "Seller registration successful",
+    seller: {
+      id: seller.id,
+      name: seller.name,
+      email: seller.email,
+      phone: seller.phone,
+      role: seller.role,
+      status: seller.status
+    }
+  });
+});
+
+app.post("/api/orders", async (req, res) => {
+  const { items, name, phone, address, payment } = req.body;
+
+  if (!Array.isArray(items) || items.length === 0 ||
+      !name || !phone || !address || !payment) {
+    return res.status(400).json({
+      success: false,
+      message: "Required order details are missing"
+    });
+  }
+
+  await db.read();
+
+  const orderItems = items.map(item => {
+    const product = db.data.products.find(
+      p => String(p.id) === String(item.productId)
+    );
+
+    return {
+      productId: item.productId || "",
+      sellerId: product?.sellerId || "",
+      name: product?.name || item.name || "",
+      price: Number(product?.price ?? item.price ?? 0),
+      quantity: Number(item.quantity || 1)
+    };
+  });
+
+  const total = orderItems.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
+
+  const order = {
+    id: "ZC" + Date.now(),
+    items: orderItems,
+    total,
+    name,
+    phone,
+    address,
+    payment,
+    status: "Placed",
+    createdAt: new Date().toISOString()
+  };
+
+  db.data.orders.push(order);
+  await db.write();
+
+  res.status(201).json({
+    success: true,
+    message: "Order placed successfully",
+    order
+  });
+});;
+
+app.get("/api/orders", async (req, res) => {
+  await db.read();
+
+  res.json({
+    success: true,
+    orders: db.data.orders || []
+  });
+});
+
+app.get("/api/seller/:sellerId/orders", async (req, res) => {
+  const { sellerId } = req.params;
+
+  await db.read();
+
+  const orders = (db.data.orders || []).map(order => {
+    if (Array.isArray(order.items)) {
+      const sellerItems = order.items.filter(item =>
+        String(item.sellerId || "") === String(sellerId)
+      );
+
+      if (sellerItems.length === 0) return null;
+
+      return {
+        ...order,
+        items: sellerItems,
+        total: sellerItems.reduce((sum, item) =>
+          sum + Number(item.price || 0) * Number(item.quantity || 1), 0
+        )
+      };
+    }
+
+    return null;
+  }).filter(Boolean);
+
+  res.json({
+    success: true,
+    orders
+  });
+});
+
+
+app.put("/api/seller/:sellerId/orders/:orderId/status", async (req, res) => {
+  const { sellerId, orderId } = req.params;
+  const { status } = req.body;
+
+  const allowedStatuses = [
+    "Placed",
+    "Confirmed",
+    "Packed",
+    "Shipped",
+    "Out for Delivery",
+    "Delivered",
+    "Cancelled"
+  ];
+
+  if (!allowedStatuses.includes(status)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid order status"
+    });
+  }
+
+  await db.read();
+
+  const order = (db.data.orders || []).find(
+    order => String(order.id) === String(orderId)
+  );
+
+  if (!order) {
+    return res.status(404).json({
+      success: false,
+      message: "Order not found"
+    });
+  }
+
+  if (!Array.isArray(order.items)) {
+    return res.status(400).json({
+      success: false,
+      message: "This order does not contain seller items"
+    });
+  }
+
+  const sellerItems = order.items.filter(item =>
+    String(item.sellerId || "") === String(sellerId)
+  );
+
+  if (sellerItems.length === 0) {
+    return res.status(403).json({
+      success: false,
+      message: "You are not authorized to update this order"
+    });
+  }
+
+  order.status = status;
+
+  await db.write();
+
+  res.json({
+    success: true,
+    message: "Order status updated successfully",
+    order
+  });
+});
+
+app.get("/api/seller/:sellerId/products", async (req, res) => {
+  const { sellerId } = req.params;
+
+  await db.read();
+
+  const products = db.data.products.filter(
+    product => String(product.sellerId || "") === String(sellerId)
+  );
+
+  res.json({
+    success: true,
+    products
+  });
+});
+
+app.post("/api/products", async (req, res) => {
+  const { name, price, category, description, image, stock, sellerId } = req.body;
+
+  if (!name || price === undefined) {
+    return res.status(400).json({
+      success: false,
+      message: "Product name and price are required"
+    });
+  }
+
+  await db.read();
+
+  const product = {
+    id: Date.now(),
+    name,
+    sellerId: sellerId || null,
+    price: Number(price),
+    category: category || "",
+    description: description || "",
+    image: image || "",
+    stock: Number(stock || 0),
+    rating: 0,
+    reviews: 0,
+    createdAt: new Date().toISOString()
+  };
+
+  db.data.products.push(product);
+  await db.write();
+
+  res.status(201).json({
+    success: true,
+    product
+  });
+});
+
+app.delete("/api/products/:id", async (req, res) => {
+  const { id } = req.params;
+  const { sellerId } = req.body;
+
+  if (!sellerId) {
+    return res.status(400).json({
+      success: false,
+      message: "Seller ID is required"
+    });
+  }
+
+  await db.read();
+
+  const index = db.data.products.findIndex(
+    product =>
+      String(product.id) === String(id) &&
+      String(product.sellerId || "") === String(sellerId)
+  );
+
+  if (index === -1) {
+    return res.status(404).json({
+      success: false,
+      message: "Product not found or not owned by this seller"
+    });
+  }
+
+  const deletedProduct = db.data.products.splice(index, 1)[0];
+
+  await db.write();
+
+  res.json({
+    success: true,
+    message: "Product deleted successfully",
+    product: deletedProduct
+  });
+});
+
+app.put("/api/products/:id", async (req, res) => {
+  const { id } = req.params;
+  const { sellerId, name, price, category, description, image, stock } = req.body;
+
+  if (!sellerId) {
+    return res.status(400).json({
+      success: false,
+      message: "Seller ID is required"
+    });
+  }
+
+  await db.read();
+
+  const product = db.data.products.find(
+    product =>
+      String(product.id) === String(id) &&
+      String(product.sellerId || "") === String(sellerId)
+  );
+
+  if (!product) {
+    return res.status(404).json({
+      success: false,
+      message: "Product not found or not owned by this seller"
+    });
+  }
+
+  if (name !== undefined) product.name = name;
+  if (price !== undefined) product.price = Number(price);
+  if (category !== undefined) product.category = category;
+  if (description !== undefined) product.description = description;
+  if (image !== undefined) product.image = image;
+  if (stock !== undefined) product.stock = Number(stock);
+
+  await db.write();
+
+  res.json({
+    success: true,
+    message: "Product updated successfully",
+    product
+  });
+});
+
+app.post("/api/customer/register", async (req, res) => {
+  const { name, email, phone, password } = req.body;
+
+  if (!name || !email || !phone || !password) {
+    return res.status(400).json({
+      success: false,
+      message: "Name, email, phone and password are required"
+    });
+  }
+
+  await db.read();
+
+  const exists = db.data.users.find(
+    u => u.email === email || u.phone === phone
+  );
+
+  if (exists) {
+    return res.status(409).json({
+      success: false,
+      message: "Account already registered with this email or phone"
+    });
+  }
+
+  const customer = {
+    id: "C" + Date.now(),
+    name,
+    email,
+    phone,
+    password,
+    role: "customer",
+    status: "active",
+    createdAt: new Date().toISOString()
+  };
+
+  db.data.users.push(customer);
+  await db.write();
+
+  res.status(201).json({
+    success: true,
+    message: "Customer registration successful",
+    customer: {
+      id: customer.id,
+      name: customer.name,
+      email: customer.email,
+      phone: customer.phone,
+      role: customer.role,
+      status: customer.status
+    }
+  });
+});
+
+app.post("/api/customer/login", async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({
+      success: false,
+      message: "Email and password are required"
+    });
+  }
+
+  await db.read();
+
+  const customer = db.data.users.find(
+    u => u.email === email && u.role === "customer"
+  );
+
+  if (!customer || customer.password !== password) {
+    return res.status(401).json({
+      success: false,
+      message: "Invalid customer email or password"
+    });
+  }
+
+  res.json({
+    success: true,
+    message: "Customer login successful",
+    customer: {
+      id: customer.id,
+      name: customer.name,
+      email: customer.email,
+      phone: customer.phone,
+      role: customer.role,
+      status: customer.status
+    }
+  });
+});
+
+// Start server
+initDB().then(() => {
+  app.listen(PORT, () => {
+    console.log(`ZCart Server running at http://localhost:${PORT}`);
+  });
+});

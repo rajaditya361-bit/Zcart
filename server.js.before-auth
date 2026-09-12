@@ -1,0 +1,109 @@
+const express = require("express");
+const path = require("path");
+const { db, initDB } = require("./database");
+
+const app = express();
+const PORT = 3000;
+
+app.use(express.json());
+app.use(express.static(__dirname));
+
+// Home
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
+});
+
+// Backend status
+app.get("/api/status", (req, res) => {
+  res.json({
+    success: true,
+    message: "ZCart Backend is working!"
+  });
+});
+
+// Get all products
+app.get("/api/products", async (req, res) => {
+  await db.read();
+
+  res.json({
+    success: true,
+    products: db.data.products
+  });
+});
+
+// Add product
+app.post("/api/orders", async (req, res) => {
+  const { product, quantity, price, name, phone, address, payment } = req.body;
+
+  if (!product || !name || !phone || !address || !payment) {
+    return res.status(400).json({
+      success: false,
+      message: "Required order details are missing"
+    });
+  }
+
+  await db.read();
+
+  const order = {
+    id: "ZC" + Date.now(),
+    product,
+    quantity: Number(quantity || 1),
+    price: Number(price || 0),
+    name,
+    phone,
+    address,
+    payment,
+    status: "Placed",
+    createdAt: new Date().toISOString()
+  };
+
+  db.data.orders.push(order);
+  await db.write();
+
+  res.status(201).json({
+    success: true,
+    message: "Order placed successfully",
+    order
+  });
+});
+
+app.post("/api/products", async (req, res) => {
+  const { name, price, category, description, image, stock } = req.body;
+
+  if (!name || price === undefined) {
+    return res.status(400).json({
+      success: false,
+      message: "Product name and price are required"
+    });
+  }
+
+  await db.read();
+
+  const product = {
+    id: Date.now(),
+    name,
+    price: Number(price),
+    category: category || "",
+    description: description || "",
+    image: image || "",
+    stock: Number(stock || 0),
+    rating: 0,
+    reviews: 0,
+    createdAt: new Date().toISOString()
+  };
+
+  db.data.products.push(product);
+  await db.write();
+
+  res.status(201).json({
+    success: true,
+    product
+  });
+});
+
+// Start server
+initDB().then(() => {
+  app.listen(PORT, () => {
+    console.log(`ZCart Server running at http://localhost:${PORT}`);
+  });
+});

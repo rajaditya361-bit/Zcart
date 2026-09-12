@@ -1,0 +1,36 @@
+    function updateCart() {
+        const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+        document.getElementById("cartCount").innerText = count;
+
+        const container = document.getElementById("cartItems");
+        const totalElement = document.getElementById("cartTotal");
+
+        if (cart.length === 0) {
+            container.innerHTML = "<p>Your cart is empty.</p>";
+            totalElement.innerText = "Total: ₹0";
+            return;
+        }
+
+        let total = 0;
+
+        container.innerHTML = cart.map((item, index) => {
+            const itemTotal = item.price * item.quantity;
+            total += itemTotal;
+
+            return `
+                <div style="padding:12px 0; border-bottom:1px solid #ddd;">
+                    <strong>${item.name}</strong><br>
+                    ₹${item.price.toLocaleString("en-IN")}
+                    × ${item.quantity}
+                    = ₹${itemTotal.toLocaleString("en-IN")}
+                    <br>
+                    <button onclick="changeQuantity(${index}, -1)">−</button>
+                    <button onclick="changeQuantity(${index}, 1)">+</button>
+                    <button onclick="removeFromCart(${index})">Remove</button>
+                </div>
+            `;
+        }).join("");
+
+        totalElement.innerText =
+            "Total: ₹" + total.toLocaleString("en-IN");
+    }

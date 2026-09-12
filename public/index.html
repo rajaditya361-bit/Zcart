@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZCart - Admin Panel</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body data-theme="blue">
+
+  <!-- Navigation Header -->
+  <header class="navbar">
+    <div class="nav-top">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <button class="icon-btn" onclick="filterCategory('All')"><i class="fas fa-arrow-left"></i></button>
+        <a href="#" class="brand-logo" onclick="filterCategory('All')">ZCart</a>
+      </div>
+      
+      <div class="header-actions">
+        <button class="icon-btn" onclick="toggleAdminModal()" title="Admin Dashboard">
+          <i class="fas fa-user-shield"></i>
+        </button>
+        <button class="icon-btn">
+          <i class="fas fa-shopping-cart"></i>
+          <span class="cart-badge" id="cartCount">0</span>
+        </button>
+        <button class="icon-btn" title="Account">
+          <i class="fas fa-user-circle"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="search-container">
+      <input type="text" id="searchInput" class="search-input" placeholder="Search for products, brands and more..." onkeyup="searchProducts()" />
+      <button class="search-btn"><i class="fas fa-search"></i></button>
+    </div>
+  </header>
+
+  <!-- Categories Bar -->
+  <div class="category-bar">
+    <div class="category-item" onclick="filterCategory('All')">
+      <i class="fas fa-th-large category-icon"></i>All
+    </div>
+    <div class="category-item" onclick="filterCategory('Mobiles')">
+      <i class="fas fa-mobile-alt category-icon"></i>Mobiles
+    </div>
+    <div class="category-item" onclick="filterCategory('Laptops')">
+      <i class="fas fa-laptop category-icon"></i>Laptops
+    </div>
+    <div class="category-item" onclick="filterCategory('Fashion')">
+      <i class="fas fa-tshirt category-icon"></i>Fashion
+    </div>
+  </div>
+
+  <!-- Auto Sliding Banners Slider -->
+  <div class="banner-slider-container" id="bannerSlider"></div>
+
+  <!-- Product Section -->
+  <h3 class="section-title" id="sectionHeader">Deals of the Day</h3>
+  <div class="product-grid" id="productList"></div>
+
+  <!-- FULL ADMIN DASHBOARD MODAL -->
+  <div class="admin-modal" id="adminModal">
+    <div class="admin-modal-content">
+      <div class="admin-modal-header">
+        <h3><i class="fas fa-user-shield"></i> ZCart Control Center</h3>
+        <button class="close-btn" onclick="toggleAdminModal()">&times;</button>
+      </div>
+
+      <!-- Admin Navigation Tabs -->
+      <div class="admin-tabs">
+        <button class="tab-btn active" onclick="switchAdminTab('bannersTab')"><i class="fas fa-images"></i> Banners</button>
+        <button class="tab-btn" onclick="switchAdminTab('productsTab')"><i class="fas fa-box"></i> Products</button>
+        <button class="tab-btn" onclick="switchAdminTab('sellersTab')"><i class="fas fa-store"></i> Sellers</button>
+        <button class="tab-btn" onclick="switchAdminTab('ordersTab')"><i class="fas fa-shopping-bag"></i> Orders</button>
+        <button class="tab-btn" onclick="switchAdminTab('kycTab')"><i class="fas fa-id-card"></i> KYC</button>
+        <button class="tab-btn" onclick="switchAdminTab('themeTab')"><i class="fas fa-palette"></i> Theme</button>
+      </div>
+      
+      <!-- 1. Banner Management -->
+      <div id="bannersTab" class="tab-content active-content">
+        <h4>Add New Banner</h4>
+        <div class="admin-form">
+          <input type="text" id="newBannerTitle" placeholder="Banner Title" />
+          <input type="text" id="newBannerSub" placeholder="Subtitle" />
+          <select id="newBannerCategory">
+            <option value="Mobiles">Link to Mobiles</option>
+            <option value="Laptops">Link to Laptops</option>
+            <option value="Fashion">Link to Fashion</option>
+            <option value="All">Link to All</option>
+          </select>
+          <input type="text" id="newBannerBg" placeholder="Background Color / Image URL" />
+          <button onclick="addBanner()" class="admin-btn-primary">Add Banner</button>
+        </div>
+        <h4 style="margin-top:15px;">Active Banners</h4>
+        <div id="adminBannerList"></div>
+      </div>
+
+      <!-- 2. Product Management -->
+      <div id="productsTab" class="tab-content">
+        <h4>Add New Product</h4>
+        <div class="admin-form">
+          <input type="text" id="pName" placeholder="Product Name" />
+          <select id="pCategory">
+            <option value="Mobiles">Mobiles</option>
+            <option value="Laptops">Laptops</option>
+            <option value="Fashion">Fashion</option>
+          </select>
+          <input type="text" id="pPrice" placeholder="Price (e.g. ₹12,999)" />
+          <input type="text" id="pRating" placeholder="Rating (e.g. ★ 4.3)" />
+          <button onclick="addNewProduct()" class="admin-btn-primary">Add Product</button>
+        </div>
+        <h4 style="margin-top:15px;">Product Inventory</h4>
+        <div id="adminProductList"></div>
+      </div>
+
+      <!-- 3. Seller Management -->
+      <div id="sellersTab" class="tab-content">
+        <h4>Manage Sellers / Vendors</h4>
+        <div class="admin-form">
+          <input type="text" id="sellerName" placeholder="Store Name" />
+          <input type="text" id="sellerPhone" placeholder="Mobile Number" />
+          <button onclick="addSeller()" class="admin-btn-primary">Approve New Seller</button>
+        </div>
+        <h4 style="margin-top:15px;">Registered Sellers</h4>
+        <div id="adminSellerList"></div>
+      </div>
+
+      <!-- 4. Order Management -->
+      <div id="ordersTab" class="tab-content">
+        <h4>Customer Orders</h4>
+        <div id="adminOrderList"></div>
+      </div>
+
+      <!-- 5. KYC Management -->
+      <div id="kycTab" class="tab-content">
+        <h4>Seller & User KYC Verification</h4>
+        <div id="adminKycList"></div>
+      </div>
+
+      <!-- 6. Custom Theme Color Picker -->
+      <div id="themeTab" class="tab-content">
+        <h4>Custom Theme Color Picker</h4>
+        <div class="admin-form">
+          <div class="color-picker-group">
+            <label>Choose Primary Color:</label>
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+              <input type="color" id="primaryColorPicker" oninput="setCustomColor(this.value)" value="#1a73e8" style="width:50px; height:40px; padding:0; cursor:pointer; border:none; border-radius:6px;">
+              <span id="colorHexCode" style="font-weight:bold; font-size:14px;">#1a73e8</span>
+            </div>
+          </div>
+
+          <label style="font-weight:bold; font-size:12px; margin-bottom:6px; display:block;">Quick Preset Themes:</label>
+          <div class="theme-presets">
+            <button class="preset-btn" style="background:#1a73e8;" onclick="setCustomColor('#1a73e8')">Blue</button>
+            <button class="preset-btn" style="background:#0f9d58;" onclick="setCustomColor('#0f9d58')">Emerald</button>
+            <button class="preset-btn" style="background:#6a11cb;" onclick="setCustomColor('#6a11cb')">Purple</button>
+            <button class="preset-btn" style="background:#e91e63;" onclick="setCustomColor('#e91e63')">Pink</button>
+            <button class="preset-btn" style="background:#ff9800;" onclick="setCustomColor('#ff9800')">Orange</button>
+            <button class="preset-btn" style="background:#222222;" onclick="setCustomColor('#222222')">Dark</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

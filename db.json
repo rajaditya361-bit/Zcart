@@ -1,0 +1,239 @@
+{
+  "products": [
+    {
+      "id": 1788708457110,
+      "name": "Smartphone",
+      "price": 14999,
+      "category": "Mobiles",
+      "description": "ZCart demo smartphone",
+      "image": "",
+      "stock": 50,
+      "rating": 0,
+      "reviews": 0,
+      "createdAt": "2026-09-06T15:27:37.110Z"
+    },
+    {
+      "id": 1788754495330,
+      "name": "Test Seller Product",
+      "price": 1999,
+      "category": "Electronics",
+      "description": "Seller test product",
+      "image": "",
+      "stock": 25,
+      "rating": 0,
+      "reviews": 0,
+      "createdAt": "2026-09-07T04:14:55.330Z"
+    },
+    {
+      "id": 1788755623900,
+      "name": "Mobile",
+      "price": 500,
+      "category": "Mobile",
+      "description": "Nokia lumia",
+      "image": "",
+      "stock": 500,
+      "rating": 0,
+      "reviews": 0,
+      "createdAt": "2026-09-07T04:33:43.900Z"
+    },
+    {
+      "id": 1788792567006,
+      "name": "Test product 2",
+      "sellerId": "S1788755428366",
+      "price": 1999,
+      "category": "Electronics",
+      "description": "",
+      "image": "",
+      "stock": 10,
+      "rating": 0,
+      "reviews": 0,
+      "createdAt": "2026-09-07T14:49:27.006Z"
+    }
+  ],
+  "users": [
+    {
+      "id": "S1788755428366",
+      "name": "Vikas kumar",
+      "email": "rajaditya361@gmail.com",
+      "phone": "6200002592",
+      "password": "6200002592@Vk",
+      "role": "seller",
+      "status": "active",
+      "createdAt": "2026-09-07T04:30:28.366Z"
+    },
+    {
+      "id": "C1788768186155",
+      "name": "Vikas kumar",
+      "email": "rajaditya36@gmail.com",
+      "phone": "6202305285",
+      "password": "6200002592@Vk",
+      "role": "customer",
+      "status": "active",
+      "createdAt": "2026-09-07T08:03:06.158Z"
+    },
+    {
+      "id": "S1788786649868",
+      "name": "Vikas",
+      "email": "rajaditya3@gmail.com",
+      "phone": "6200002591",
+      "password": "6200002592@Vk",
+      "role": "seller",
+      "status": "active",
+      "createdAt": "2026-09-07T13:10:49.868Z"
+    },
+    {
+      "id": "C1788794040539",
+      "name": "Adityaa",
+      "email": "aditya1@gmail.com",
+      "phone": "6200002391",
+      "password": "6200002592",
+      "role": "customer",
+      "status": "active",
+      "createdAt": "2026-09-07T15:14:00.539Z"
+    }
+  ],
+  "carts": [],
+  "orders": [
+    {
+      "id": "ZC1788753970644",
+      "product": "Test Smartphone",
+      "quantity": 1,
+      "price": 999,
+      "name": "Test User",
+      "phone": "9999999999",
+      "address": "Test Address",
+      "payment": "COD",
+      "status": "Placed",
+      "createdAt": "2026-09-07T04:06:10.644Z"
+    },
+    {
+      "id": "ZC1788774853550",
+      "product": "Smartphone",
+      "quantity": 1,
+      "price": 14999,
+      "name": "Vikas",
+      "phone": "620354809",
+      "address": "Station road patna",
+      "payment": "COD",
+      "status": "Placed",
+      "createdAt": "2026-09-07T09:54:13.551Z"
+    },
+    {
+      "id": "ZC1788776602427",
+      "items": [
+        {
+          "productId": "1",
+          "sellerId": "S1",
+          "name": "Test Product 1",
+          "price": 100,
+          "quantity": 2
+        },
+        {
+          "productId": "2",
+          "sellerId": "S2",
+          "name": "Test Product 2",
+          "price": 200,
+          "quantity": 1
+        }
+      ],
+      "total": 400,
+      "name": "Test User",
+      "phone": "9999999999",
+      "address": "Test Address",
+      "payment": "COD",
+      "status": "Confirmed",
+      "createdAt": "2026-09-07T10:23:22.427Z"
+    },
+    {
+      "id": "ZC1788776709630",
+      "items": [
+        {
+          "productId": "1788708457110",
+          "sellerId": "",
+          "name": "Smartphone",
+          "price": 14999,
+          "quantity": 1
+        },
+        {
+          "productId": "1788754495330",
+          "sellerId": "",
+          "name": "Test Seller Product",
+          "price": 1999,
+          "quantity": 1
+        }
+      ],
+      "total": 16998,
+      "name": "Vikas",
+      "phone": "625065654",
+      "address": "Station road patna",
+      "payment": "COD",
+      "status": "Placed",
+      "createdAt": "2026-09-07T10:25:09.630Z"
+    },
+    {
+      "id": "ZC1788786721285",
+      "items": [
+        {
+          "productId": "",
+          "sellerId": "",
+          "name": "Smartphone",
+          "price": 14999,
+          "quantity": 1
+        }
+      ],
+      "total": 14999,
+      "name": "Vikas",
+      "phone": "6200002592",
+      "address": "Station road patna",
+      "payment": "COD",
+      "status": "Placed",
+      "createdAt": "2026-09-07T13:12:01.286Z"
+    },
+    {
+      "id": "ZC1788794096532",
+      "items": [
+        {
+          "productId": "1788754495330",
+          "sellerId": "",
+          "name": "Test Seller Product",
+          "price": 1999,
+          "quantity": 1
+        }
+      ],
+      "total": 1999,
+      "name": "Vikas",
+      "phone": "6200002592",
+      "address": "Station road patna",
+      "payment": "COD",
+      "status": "Placed",
+      "createdAt": "2026-09-07T15:14:56.532Z"
+    },
+    {
+      "id": "ZC1788795098288",
+      "items": [
+        {
+          "productId": "1788708457110",
+          "sellerId": "",
+          "name": "Smartphone",
+          "price": 14999,
+          "quantity": 2
+        },
+        {
+          "productId": "1788754495330",
+          "sellerId": "",
+          "name": "Test Seller Product",
+          "price": 1999,
+          "quantity": 2
+        }
+      ],
+      "total": 33996,
+      "name": "Vikas",
+      "phone": "6200002592",
+      "address": "Station road Munger",
+      "payment": "COD",
+      "customerId": "C1788794040539",
+      "status": "Placed",
+      "createdAt": "2026-09-07T15:31:38.288Z"
+    }
+  ]
+}

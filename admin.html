@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZCart Admin Console</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: #f1f2f6; color: #212121; padding-bottom: 70px; }
+        .top-header { background-color: #ffffff; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 3px rgba(0,0,0,0.08); position: sticky; top: 0; z-index: 100; }
+        .top-header h1 { font-size: 18px; font-weight: 700; color: #2874f0; }
+        .section-container { background-color: #ffffff; margin-top: 8px; padding: 4px 0; }
+        .section-title { font-size: 14px; font-weight: 700; color: #878787; text-transform: uppercase; letter-spacing: 0.5px; padding: 12px 16px 6px 16px; }
+        .list-group { display: flex; flex-direction: column; }
+        .list-item { display: flex; align-items: center; justify-content: space-between; padding: 15px 16px; background-color: #ffffff; border-bottom: 1px solid #f0f0f0; text-decoration: none; color: #212121; }
+        .item-left { display: flex; align-items: center; gap: 16px; }
+        .item-left i { font-size: 18px; color: #2874f0; width: 22px; text-align: center; }
+        .badge { background-color: #ff6161; color: #fff; font-size: 11px; padding: 2px 7px; border-radius: 10px; font-weight: 600; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 56px; background-color: #ffffff; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #e0e0e0; }
+        .nav-link { display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; color: #878787; font-size: 11px; }
+        .nav-link.active { color: #2874f0; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="top-header"><h1>ZCart Admin Console</h1></div>
+    <div class="section-container">
+        <div class="section-title">Store Management</div>
+        <div class="list-group">
+            <a href="#banner" class="list-item"><div class="item-left"><i class="fa-solid fa-images"></i><span>Banner Management</span></div><i class="fa-solid fa-chevron-right"></i></a>
+            <a href="#orders" class="list-item"><div class="item-left"><i class="fa-solid fa-box-archive"></i><span>Order Management</span></div><div><span class="badge">New</span> <i class="fa-solid fa-chevron-right"></i></div></a>
+            <a href="#products" class="list-item"><div class="item-left"><i class="fa-solid fa-seedling"></i><span>Product Catalog</span></div><i class="fa-solid fa-chevron-right"></i></a>
+        </div>
+    </div>
+    <div class="bottom-nav">
+        <a href="/admin" class="nav-link active"><i class="fa-solid fa-house"></i><span>Dashboard</span></a>
+        <a href="/" class="nav-link"><i class="fa-solid fa-store"></i><span>Store</span></a>
+    </div>
+</body>
+</html>
